@@ -1,0 +1,122 @@
+@use './variables' as vars;
+
+// Flexbox mixins
+@mixin flex($direction: row, $justify: flex-start, $align: stretch, $wrap: nowrap) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+  flex-wrap: $wrap;
+}
+
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+// 响应式布局
+@mixin responsive($breakpoint) {
+  @if $breakpoint == sm {
+    @media (min-width: vars.$breakpoint-sm) { @content; }
+  } @else if $breakpoint == md {
+    @media (min-width: vars.$breakpoint-md) { @content; }
+  } @else if $breakpoint == lg {
+    @media (min-width: vars.$breakpoint-lg) { @content; }
+  } @else if $breakpoint == xl {
+    @media (min-width: vars.$breakpoint-xl) { @content; }
+  }
+}
+
+// 文本溢出省略
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// 多行文本溢出省略
+@mixin text-truncate-lines($lines: 2) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: $lines;
+  overflow: hidden;
+}
+
+// 过渡效果
+@mixin transition($properties: all, $duration: 0.3s, $timing: ease) {
+  transition-property: $properties;
+  transition-duration: $duration;
+  transition-timing-function: $timing;
+}
+
+// 卡片样式
+@mixin card {
+  background-color: vars.$white;
+  border-radius: vars.$radius-md;
+  box-shadow: vars.$shadow-sm;
+  
+  @at-root {
+    @media (prefers-color-scheme: dark) {
+      #{&} {
+        background-color: vars.$dark-card;
+      }
+    }
+  }
+}
+
+// 按钮样式
+@mixin button {
+  padding: vars.$spacing-2 vars.$spacing-4;
+  border-radius: vars.$radius-md;
+  font-weight: 500;
+  cursor: pointer;
+  @include transition;
+}
+
+@mixin button-primary {
+  @include button;
+  background-color: vars.$primary-500;
+  color: vars.$white;
+  
+  &:hover {
+    background-color: vars.$primary-600;
+  }
+}
+
+@mixin button-outline {
+  @include button;
+  border: 1px solid vars.$primary-500;
+  color: vars.$primary-500;
+  background-color: transparent;
+  
+  &:hover {
+    background-color: vars.$primary-50;
+  }
+}
+
+// 表单输入框样式
+@mixin input {
+  width: 100%;
+  padding: vars.$spacing-2 vars.$spacing-3;
+  border: 1px solid vars.$gray-300;
+  border-radius: vars.$radius-md;
+  
+  &:focus {
+    outline: none;
+    border-color: vars.$primary-500;
+    box-shadow: 0 0 0 2px rgba(vars.$primary-500, 0.2);
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    background-color: vars.$dark-card;
+    border-color: vars.$dark-border;
+    color: vars.$dark-text;
+  }
+} 
