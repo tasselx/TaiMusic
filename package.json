@@ -1,13 +1,19 @@
 {
-  "name": "tai-music",
+  "name": "taimusic",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "TaiMusic服务",
+  "main": "start.js",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "dev": "node -e \"require('child_process').spawn('node', ['start.js'], {stdio: 'inherit', detached: true}); setTimeout(() => require('child_process').spawn('vite', [], {stdio: 'inherit'}), 1000)\"",
+    "build": "tsc && vite build && node -e \"require('fs-extra').copySync('bin', 'dist/bin')\"",
     "preview": "vite preview",
-    "tauri": "tauri",
-    "start-api": "node server.js"
+    "prebuild:tauri": "node prebuild.js",
+    "tauri": "node -e \"require('child_process').spawn('node', ['start.js'], {stdio: 'inherit', detached: true}); setTimeout(() => require('child_process').spawnSync('npx', ['tauri', ...process.argv.slice(2)], {stdio: 'inherit', shell: true}), 1000)\"",
+    "tauri:dev": "node -e \"require('child_process').spawn('node', ['start.js'], {stdio: 'inherit', detached: true}); setTimeout(() => require('child_process').spawnSync('npx', ['tauri', 'dev'], {stdio: 'inherit', shell: true}), 1000)\"",
+    "tauri:build": "npm run prebuild:tauri && node -e \"require('child_process').spawn('node', ['start.js'], {stdio: 'inherit', detached: true}); setTimeout(() => require('child_process').spawnSync('npx', ['tauri', 'build'], {stdio: 'inherit', shell: true}), 1000)\"",
+    "start": "node start.js",
+    "postinstall": "npm install fs-extra --no-save"
   },
   "dependencies": {
     "@tauri-apps/api": "^1.5.0",
@@ -25,7 +31,11 @@
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "fs-extra": "^11.3.0",
     "typescript": "~5.6.2",
     "vite": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }

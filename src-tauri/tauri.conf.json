@@ -15,7 +15,10 @@
       "http": {
         "all": true,
         "request": true,
-        "scope": ["http://**", "https://**"]
+        "scope": [
+          "http://**",
+          "https://**"
+        ]
       },
       "shell": {
         "all": false,
@@ -29,7 +32,9 @@
       "deb": {
         "depends": []
       },
-      "externalBin": [],
+      "externalBin": [
+        "../bin/app_macos_arm64"
+      ],
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -46,7 +51,9 @@
         "providerShortName": null,
         "signingIdentity": null
       },
-      "resources": [],
+      "resources": [
+        "../start.js"
+      ],
       "shortDescription": "",
       "targets": "all",
       "windows": {
