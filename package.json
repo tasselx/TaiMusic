@@ -6,7 +6,7 @@
   "main": "start.js",
   "scripts": {
     "dev": "node -e \"require('child_process').spawn('node', ['start.js'], {stdio: 'inherit', detached: true}); setTimeout(() => require('child_process').spawn('vite', [], {stdio: 'inherit'}), 1000)\"",
-    "build": "tsc && vite build && node -e \"require('fs-extra').copySync('bin', 'dist/bin')\"",
+    "build": "tsc && vite build",
     "preview": "vite preview",
     "prebuild:tauri": "node prebuild.js",
     "tauri": "node -e \"require('child_process').spawn('node', ['start.js'], {stdio: 'inherit', detached: true}); setTimeout(() => require('child_process').spawnSync('npx', ['tauri', ...process.argv.slice(2)], {stdio: 'inherit', shell: true}), 1000)\"",

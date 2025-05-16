@@ -42,28 +42,20 @@ try {
   console.error(`获取目标三元组失败: ${error.message}`);
 }
 
-// 创建目标平台的二进制文件副本
+// 检查二进制文件存在
 const binDir = path.join(__dirname, 'bin');
 const sourcePath = path.join(binDir, binaryFile);
-const targetBinaryName = `${binaryFile}-${targetTriple}`;
-const targetPath = path.join(binDir, targetBinaryName);
 
-// 复制二进制文件
+// 验证二进制文件存在
 try {
   if (fs.existsSync(sourcePath)) {
-    fs.copySync(sourcePath, targetPath);
-    console.log(`已创建二进制文件副本: ${targetBinaryName}`);
-    
-    // 设置执行权限(非Windows平台)
-    if (platform !== 'win32') {
-      fs.chmodSync(targetPath, '755');
-    }
+    console.log(`将使用二进制文件: ${binaryFile}`);
   } else {
     console.error(`错误: 找不到源二进制文件 ${sourcePath}`);
     process.exit(1);
   }
 } catch (error) {
-  console.error(`复制二进制文件失败: ${error.message}`);
+  console.error(`检查二进制文件失败: ${error.message}`);
   process.exit(1);
 }
 
@@ -71,8 +63,39 @@ try {
 const configPath = path.join(__dirname, 'src-tauri', 'tauri.conf.json');
 const config = fs.readJsonSync(configPath);
 
-// 更新配置文件
+// 创建带有平台三元组后缀的二进制文件
+const targetBinaryName = `${binaryFile}-${targetTriple}`;
+const targetPath = path.join(binDir, targetBinaryName);
+
+// 清理任何已存在的链接或文件
+if (fs.existsSync(targetPath)) {
+  fs.removeSync(targetPath);
+}
+
+// 更新配置文件，使用符合Tauri要求的二进制名称
 config.tauri.bundle.externalBin = [`../bin/${binaryFile}`];
+
+// 创建软链接
+try {
+  if (platform === 'win32') {
+    // Windows上创建软链接（需要管理员权限）或硬链接
+    try {
+      execSync(`mklink "${targetPath}" "${sourcePath}"`, { shell: true });
+    } catch (e) {
+      // 如果软链接失败，尝试创建硬链接
+      execSync(`mklink /h "${targetPath}" "${sourcePath}"`, { shell: true });
+    }
+  } else {
+    // macOS和Linux上创建软链接
+    fs.symlinkSync(path.basename(sourcePath), targetPath);
+  }
+  console.log(`创建了软链接: ${targetBinaryName} -> ${binaryFile}`);
+} catch (error) {
+  // 如果软链接失败，就复制文件
+  console.log(`软链接创建失败，正在复制文件`);
+  fs.copySync(sourcePath, targetPath);
+  console.log(`已复制文件: ${binaryFile} -> ${targetBinaryName}`);
+}
 
 // 写回配置文件
 fs.writeJsonSync(configPath, config, { spaces: 2 });
