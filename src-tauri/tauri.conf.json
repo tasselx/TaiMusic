@@ -71,12 +71,13 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 700,
+        "height": 770,
         "resizable": true,
-        "title": "Tai Music",
-        "width": 1000,
-        "minWidth": 800,
-        "minHeight": 600,
+        "title": "",
+        "width": 1078,
+        "minWidth": 1078,
+        "minHeight": 770,
+        "titleBarStyle": "Overlay",
         "center": true
       }
     ]
