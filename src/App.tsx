@@ -1,27 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import './App.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import SearchBar from './components/SearchBar';
-
-// 定义搜索结果的接口
-interface SearchResult {
-  id?: string | number;
-  name: string;
-  singer: string;
-  album: string;
-  duration?: string;
-  pic?: string;
-}
+import Player from './components/Player';
+import {
+  useUIStore,
+  useSearchStore,
+  useApiStore,
+  Song
+} from './store';
 
 const App: React.FC = () => {
-  const [apiStatus, setApiStatus] = useState('Loading...');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [banners, setBanners] = useState([]);
-  const [volume, setVolume] = useState(80);
-  const [progress, setProgress] = useState(30);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  // 使用Zustand状态管理
+  const { setWindowSize } = useUIStore();
+  const { searchTerm, searchResults, setSearchTerm, performSearch } = useSearchStore();
+  const { checkApiStatus } = useApiStore();
 
   const playlistData = [
     {
@@ -102,7 +95,7 @@ const App: React.FC = () => {
   // 监听窗口大小变化
   useEffect(() => {
     const handleResize = () => {
-      setWindowWidth(window.innerWidth);
+      setWindowSize(window.innerWidth, window.innerHeight);
     };
 
     window.addEventListener('resize', handleResize);
@@ -111,59 +104,17 @@ const App: React.FC = () => {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [setWindowSize]);
 
   // 检查API服务状态
   useEffect(() => {
-    async function checkApiStatus() {
-      try {
-        const response = await fetch('/api/');
-        if (response.ok) {
-          setApiStatus('API服务运行中');
-          // 获取首页Banner
-          fetchBanners();
-        } else {
-          setApiStatus('API服务错误');
-        }
-      } catch (error) {
-        setApiStatus('API服务连接失败');
-        // 5秒后重试
-        setTimeout(checkApiStatus, 5000);
-      }
-    }
-
+    // 初始化时检查API状态
     checkApiStatus();
-  }, []);
-
-  // 获取首页Banner
-  const fetchBanners = async () => {
-    try {
-      const response = await fetch('/api/banner');
-      const data = await response.json();
-      if (data && data.data && data.data.banner) {
-        setBanners(data.data.banner);
-      }
-    } catch (error) {
-      console.error('Failed to fetch banners:', error);
-    }
-  };
+  }, [checkApiStatus]);
 
   // 搜索音乐
-  const handleSearch = async () => {
-    if (!searchTerm.trim()) return;
-
-    try {
-      const response = await fetch(`/api/search?keywords=${encodeURIComponent(searchTerm)}&pagesize=20`);
-      const data = await response.json();
-      if (data && data.data && data.data.info) {
-        setSearchResults(data.data.info);
-      } else {
-        setSearchResults([]);
-      }
-    } catch (error) {
-      console.error('搜索失败:', error);
-      setSearchResults([]);
-    }
+  const handleSearch = () => {
+    performSearch();
   };
 
   // 搜索函数已在handleSearch中定义
@@ -341,67 +292,7 @@ const App: React.FC = () => {
         </main>
       </div>
 
-      <footer className="player">
-        <div className="now-playing">
-          <img
-            src="https://ai-public.mastergo.com/ai/img_res/480bba3a0094fc71a4b8e1d43800f97f.jpg"
-            className="now-playing-image"
-            alt="Current song"
-          />
-          <div className="now-playing-info">
-            <h4>星空漫游</h4>
-            <p>陈思琪</p>
-          </div>
-        </div>
-
-        <div className="player-controls">
-          <div className="player-buttons">
-            <div className="player-button">
-              <i className="fas fa-random"></i>
-            </div>
-            <div className="player-button">
-              <i className="fas fa-step-backward"></i>
-            </div>
-            <div
-              className="play-button"
-              onClick={() => setIsPlaying(!isPlaying)}
-            >
-              <i className={`fas ${isPlaying ? 'fa-pause' : 'fa-play'}`}></i>
-            </div>
-            <div className="player-button">
-              <i className="fas fa-step-forward"></i>
-            </div>
-            <div className="player-button">
-              <i className="fas fa-redo"></i>
-            </div>
-          </div>
-          <div className="progress-container">
-            <span className="time">02:14</span>
-            <input
-              type="range"
-              className="progress-bar"
-              value={progress}
-              onChange={(e) => setProgress(Number(e.target.value))}
-            />
-            <span className="time">04:32</span>
-          </div>
-        </div>
-
-        <div className="player-options">
-          <div className="player-button">
-            <i className="fas fa-volume-up"></i>
-          </div>
-          <input
-            type="range"
-            className="volume-slider"
-            value={volume}
-            onChange={(e) => setVolume(Number(e.target.value))}
-          />
-          <div className="player-button">
-            <i className="fas fa-list"></i>
-          </div>
-        </div>
-      </footer>
+      <Player />
     </div>
   );
 }
