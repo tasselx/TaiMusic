@@ -49,11 +49,16 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   cursor: text;
 }
 
-/* 确保搜索框中的文本可以被选中和复制，但不显示绿色背景 */
+/* 确保搜索框中的文本可以被选中和复制，使用自定义选择颜色 */
 .search-input::selection,
 .search-result-text::selection {
-  background-color: transparent; /* 移除绿色背景色 */
-  color: var(--text);
+  background-color: rgba(100, 100, 100, 0.5); /* 使用半透明灰色作为选择背景 */
+  color: white; /* 确保选中文本颜色清晰可见 */
+}
+
+/* 确保只有文本内容被选中，而不是整个输入框 */
+.search-input {
+  color-scheme: dark; /* 使用暗色主题，避免系统默认的选择颜色 */
 }
 
 /* 头部样式 */
@@ -86,12 +91,7 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   margin-left: 5px;
 }
 
-.search-container {
-  position: relative;
-  width: 400px;
-  /* 禁止拖动 */
-  -webkit-app-region: no-drag;
-}
+/* 搜索容器样式已移至下方 */
 
 .search-input {
   width: 100%;
@@ -110,6 +110,8 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   cursor: text !important;
   /* 防止双击时出现绿色色块 */
   -webkit-tap-highlight-color: transparent !important;
+  /* 防止整个搜索框被选中时出现背景色 */
+  outline-color: transparent;
 }
 
 .search-input:focus {
@@ -128,6 +130,19 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   -webkit-text-fill-color: var(--text) !important;
   -webkit-box-shadow: 0 0 0 30px #333 inset !important;
   transition: background-color 5000s ease-in-out 0s;
+}
+
+/* 确保搜索框内的文本选择不会导致整个搜索框被选中 */
+.search-container {
+  position: relative;
+  width: 400px;
+  /* 禁止拖动 */
+  -webkit-app-region: no-drag;
+  /* 防止整个容器被选中 */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .search-icon {

@@ -175,14 +175,41 @@ const App: React.FC = () => {
     // 如果搜索框有引用且当前有焦点，则使其失去焦点
     if (searchInputRef.current && document.activeElement === searchInputRef.current) {
       searchInputRef.current.blur();
+
+      // 清除任何可能的文本选择
+      if (window.getSelection) {
+        window.getSelection()?.empty();
+      }
+    }
+  };
+
+  // 处理头部双击事件，使搜索框失去焦点并清除选择
+  const handleHeaderDoubleClick = () => {
+    // 无论是否有文本被选中，都使搜索框失去焦点
+    if (searchInputRef.current) {
+      searchInputRef.current.blur();
+    }
+
+    // 清除任何可能的文本选择
+    if (window.getSelection) {
+      window.getSelection()?.empty();
     }
   };
 
   return (
     <div className="app-container">
-      <header className="header" data-tauri-drag-region onClick={handleHeaderClick}>
+      <header
+        className="header"
+        data-tauri-drag-region
+        onClick={handleHeaderClick}
+        onDoubleClick={handleHeaderDoubleClick}
+      >
         <div className="logo">Tai Music</div>
-        <div className="search-container" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="search-container"
+          onClick={(e) => e.stopPropagation()}
+          onDoubleClick={(e) => e.stopPropagation()}
+        >
           <input
             ref={searchInputRef}
             type="text"
@@ -195,10 +222,26 @@ const App: React.FC = () => {
                 handleSearch();
               }
             }}
+            onMouseDown={(e) => {
+              // 阻止事件冒泡，允许在搜索框内进行文本选择操作
+              e.stopPropagation();
+            }}
+            onDoubleClick={(e) => {
+              // 阻止事件冒泡，确保双击事件不会传播到header
+              e.stopPropagation();
+            }}
+            onSelect={(e) => {
+              // 阻止选择事件冒泡，防止整个搜索框被选中
+              e.stopPropagation();
+            }}
           />
           <i className="fas fa-search search-icon"></i>
         </div>
-        <div className="user-button" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="user-button"
+          onClick={(e) => e.stopPropagation()}
+          onDoubleClick={(e) => e.stopPropagation()}
+        >
           <i className="fas fa-user"></i>
         </div>
       </header>
