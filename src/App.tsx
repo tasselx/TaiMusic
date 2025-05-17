@@ -159,7 +159,7 @@ const App: React.FC = () => {
 
   return (
     <div className="app-container">
-      <header className="header">
+      <header className="header" data-tauri-drag-region>
         <div className="logo">Tai Music</div>
         <div className="search-container">
           <input

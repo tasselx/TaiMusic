@@ -7,8 +7,8 @@
   margin: 0 auto;
   height: 100vh;
   min-height: 600px;
-  /* 为无装饰窗口预留空间 */
-  padding-top: 10px; /* 增加顶部空间，为窗口标题栏留出空间 */
+  /* 为系统标题栏预留空间 */
+  padding-top: 5px;
 }
 
 /* 防止所有可交互元素的文本被选中 */
@@ -50,22 +50,25 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   align-items: center;
   justify-content: space-between;
   padding: 0 32px;
-  margin-top: 8px; /* 增加顶部间距 */
   margin-bottom: 4px; /* 增加底部间距 */
   border-bottom: 1px solid var(--border);
-  /* 确保头部可以被拖动（用于移动窗口） */
-  -webkit-app-region: drag;
   /* 添加一些阴影效果 */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   /* 确保头部在最上层 */
   position: relative;
   z-index: 100;
+  /* 为无装饰窗口添加顶部空间，让内容不会太靠近窗口边缘 */
+  padding-top: 8px;
+  /* 下移头部内容，为系统标题栏留出空间 */
+  margin-top: 20px;
 }
 
 .logo {
   font-family: 'Pacifico', cursive;
   font-size: 24px;
   color: var(--primary);
+  /* 增加一些左边距，避免太靠近窗口边缘 */
+  margin-left: 5px;
 }
 
 .search-container {
@@ -117,9 +120,9 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   color: var(--text);
 }
 
-/* 禁止logo区域拖动，以便可以选择文本 */
+/* 允许logo区域拖动，以便可以移动窗口 */
 .logo {
-  -webkit-app-region: no-drag;
+  -webkit-app-region: drag;
 }
 
 /* 主内容区域 */
