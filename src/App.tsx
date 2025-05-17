@@ -203,7 +203,7 @@ const App: React.FC = () => {
           <div className="sidebar-section">
             <h3 className="sidebar-title">我的音乐</h3>
             <ul className="sidebar-menu">
-              <li className="sidebar-menu-item like-item">
+              <li className="sidebar-menu-item">
                 <i className="fas fa-heart"></i>
                 <span>我喜欢</span>
               </li>

@@ -65,12 +65,9 @@ body {
   background-color: var(--background);
   color: var(--text);
   overflow: hidden;
-  /* 桌面端优化 */
-  -webkit-user-select: none; /* 防止文本选择 */
-  -webkit-app-region: no-drag; /* 默认不可拖动 */
 }
 
-/* 隐藏滚动条但保留滚动功能 - 桌面端优化 */
+/* 隐藏滚动条但保留滚动功能 */
 ::-webkit-scrollbar {
   width: 0;
   height: 0;
@@ -85,13 +82,6 @@ body {
 /* 确保IE也隐藏滚动条 */
 * {
   -ms-overflow-style: none;
-}
-
-/* 确保所有可滚动区域在桌面端有更好的滚动体验 */
-.sidebar, .content, .song-list-body {
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* 平滑滚动 */
-  scroll-behavior: smooth;
 }
 
 /* 防止双击选中文本 */

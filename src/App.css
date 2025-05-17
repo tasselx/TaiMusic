@@ -1,4 +1,4 @@
-/* 布局样式 - 桌面端优化 */
+/* 布局样式 */
 .app-container {
   display: flex;
   flex-direction: column;
@@ -7,12 +7,8 @@
   margin: 0 auto;
   height: 100vh;
   min-height: 600px;
-  /* 为无装饰窗口预留空间 - 桌面端优化 */
-  padding-top: 15px; /* 增加顶部空间，为窗口标题栏留出更多空间 */
-  /* 桌面应用窗口边框效果 */
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
-  overflow: hidden;
+  /* 为无装饰窗口预留空间 */
+  padding-top: 10px; /* 增加顶部空间，为窗口标题栏留出空间 */
 }
 
 /* 防止所有可交互元素的文本被选中 */
@@ -47,15 +43,15 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   cursor: text;
 }
 
-/* 头部样式 - 桌面端优化 */
+/* 头部样式 */
 .header {
   height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 32px;
-  margin-top: 12px; /* 增加顶部间距，为窗口标题栏留出更多空间 */
-  margin-bottom: 6px; /* 增加底部间距 */
+  margin-top: 8px; /* 增加顶部间距 */
+  margin-bottom: 4px; /* 增加底部间距 */
   border-bottom: 1px solid var(--border);
   /* 确保头部可以被拖动（用于移动窗口） */
   -webkit-app-region: drag;
