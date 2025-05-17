@@ -3,12 +3,16 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 1440px;
+  max-width: 100%; /* 允许容器在最大化时扩展到整个窗口宽度 */
   margin: 0 auto;
   height: 100vh;
   min-height: 600px;
   /* 为系统标题栏预留空间 */
   padding-top: 5px;
+  /* 移除水平内边距，让内部元素自己控制边距 */
+  overflow: hidden; /* 防止内容溢出 */
+  /* 添加过渡效果，使窗口大小变化时更加平滑 */
+  transition: all 0.3s ease;
 }
 
 /* 防止所有可交互元素的文本被选中 */
@@ -49,7 +53,7 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 32px;
+  padding: 10px 24px;
   margin-bottom: 4px; /* 增加底部间距 */
   border-bottom: 1px solid var(--border);
   /* 添加一些阴影效果 */
@@ -57,10 +61,13 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   /* 确保头部在最上层 */
   position: relative;
   z-index: 100;
-  /* 为无装饰窗口添加顶部空间，让内容不会太靠近窗口边缘 */
-  padding-top: 8px;
   /* 下移头部内容，为系统标题栏留出空间 */
-  margin-top: 20px;
+  margin-top: 10px;
+  /* 确保头部在最大化时能够适应整个窗口宽度 */
+  width: 100%;
+  box-sizing: border-box;
+  /* 添加过渡效果，使窗口大小变化时更加平滑 */
+  transition: padding 0.3s ease;
 }
 
 .logo {
@@ -131,6 +138,9 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   flex: 1;
   overflow: hidden;
   margin-top: 4px; /* 增加顶部间距，与header底部形成更好的视觉分隔 */
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* 侧边栏 */
@@ -139,9 +149,11 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   min-width: 200px;
   padding: 16px;
   border-right: 1px solid var(--border);
-  transition: width 0.3s ease;
+  transition: all 0.3s ease;
   overflow-y: auto;
   scroll-behavior: smooth;
+  /* 添加最大宽度，确保侧边栏在大屏幕上不会过于宽 */
+  max-width: 280px;
 }
 
 .sidebar-section {
@@ -236,10 +248,16 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
 /* 主内容 */
 .content {
   flex: 1;
-  padding: 32px;
+  padding: 24px 32px;
   overflow-y: auto;
   /* 确保滚动平滑 */
   scroll-behavior: smooth;
+  /* 添加最大宽度，确保内容在大屏幕上不会过于拉伸 */
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+  /* 添加过渡效果，使窗口大小变化时更加平滑 */
+  transition: padding 0.3s ease;
 }
 
 .section-title {
@@ -253,6 +271,8 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   gap: 14px;
   margin-bottom: 24px;
+  /* 确保网格在大屏幕上能够适当扩展 */
+  width: 100%;
 }
 
 .playlist-item {
@@ -380,6 +400,12 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   display: flex;
   align-items: center;
   padding: 0 32px;
+  width: 100%;
+  box-sizing: border-box;
+  /* 添加过渡效果，使窗口大小变化时更加平滑 */
+  transition: padding 0.3s ease;
+  /* 添加最大宽度，确保播放器内容在大屏幕上居中 */
+  max-width: 100%;
 }
 
 .now-playing {
@@ -478,10 +504,116 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   .playlist-grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 12px; /* 桌面端优化：减小间距 */
+    max-width: 1400px;
+    margin: 0 auto;
   }
 
   .playlist-item {
     max-width: 120px; /* 桌面端优化：进一步减小大屏幕下的组件尺寸 */
+  }
+
+  .content {
+    padding: 28px 36px;
+  }
+}
+
+/* 中等大屏幕优化 */
+@media (min-width: 1600px) {
+  .playlist-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 14px;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+
+  .playlist-item {
+    max-width: 130px;
+  }
+
+  .content {
+    padding: 30px 38px;
+    max-width: 1500px;
+  }
+
+  /* 调整侧边栏在中等大屏幕上的宽度 */
+  .sidebar {
+    width: 250px;
+  }
+
+  /* 调整播放器在中等大屏幕上的样式 */
+  .player {
+    padding: 0 38px;
+  }
+
+  /* 调整头部在中等大屏幕上的样式 */
+  .header {
+    padding: 10px 38px;
+  }
+}
+
+/* 大屏幕优化 */
+@media (min-width: 1800px) {
+  .playlist-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .playlist-item {
+    max-width: 140px;
+  }
+
+  .content {
+    padding: 32px 40px;
+  }
+
+  /* 调整侧边栏在大屏幕上的宽度 */
+  .sidebar {
+    width: 260px;
+  }
+
+  /* 调整播放器在大屏幕上的样式 */
+  .player {
+    padding: 0 40px;
+  }
+
+  /* 调整头部在大屏幕上的样式 */
+  .header {
+    padding: 10px 40px;
+  }
+}
+
+/* 超大屏幕优化 */
+@media (min-width: 2400px) {
+  .playlist-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 18px;
+    max-width: 1800px;
+  }
+
+  .playlist-item {
+    max-width: 150px;
+  }
+
+  .content {
+    padding: 36px 50px;
+    max-width: 1800px;
+  }
+
+  /* 调整侧边栏在超大屏幕上的宽度 */
+  .sidebar {
+    width: 280px;
+  }
+
+  /* 调整播放器在超大屏幕上的样式 */
+  .player {
+    padding: 0 50px;
+  }
+
+  /* 调整头部在超大屏幕上的样式 */
+  .header {
+    padding: 10px 50px;
   }
 }
 
