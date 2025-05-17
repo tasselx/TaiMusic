@@ -8,7 +8,38 @@
   height: 100vh;
   min-height: 600px;
   /* 为无装饰窗口预留空间 */
-  padding-top: 0;
+  padding-top: 10px; /* 增加顶部空间，为窗口标题栏留出空间 */
+}
+
+/* 防止所有可交互元素的文本被选中 */
+[role="button"],
+button,
+.clickable,
+li,
+.sidebar-menu-item,
+.playlist-item,
+.song-item,
+.player-button,
+.play-button,
+.logo,
+.user-button,
+.now-playing-info,
+.sidebar-title,
+.section-title {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  cursor: default; /* 防止显示文本选择光标 */
+}
+
+/* 允许输入框和文本区域可选 */
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  cursor: text;
 }
 
 /* 头部样式 */
@@ -18,6 +49,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 32px;
+  margin-top: 8px; /* 增加顶部间距 */
+  margin-bottom: 4px; /* 增加底部间距 */
   border-bottom: 1px solid var(--border);
   /* 确保头部可以被拖动（用于移动窗口） */
   -webkit-app-region: drag;
@@ -93,6 +126,7 @@
   display: flex;
   flex: 1;
   overflow: hidden;
+  margin-top: 4px; /* 增加顶部间距，与header底部形成更好的视觉分隔 */
 }
 
 /* 侧边栏 */
@@ -102,6 +136,8 @@
   padding: 16px;
   border-right: 1px solid var(--border);
   transition: width 0.3s ease;
+  overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
 .sidebar-section {
@@ -125,10 +161,38 @@
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
+  text-decoration: none; /* 移除文本装饰 */
 }
 
 .sidebar-menu-item:hover {
   background-color: var(--surface-light);
+}
+
+/* 移除点击和选中时的下划线 */
+.sidebar-menu-item:focus,
+.sidebar-menu-item:active,
+.sidebar-menu-item:visited {
+  text-decoration: none;
+  outline: none;
+}
+
+/* 确保span元素内的文本也没有下划线 */
+.sidebar-menu-item span {
+  text-decoration: none;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  pointer-events: none; /* 防止文本被选中 */
+}
+
+.sidebar-menu-item span:focus,
+.sidebar-menu-item span:active,
+.sidebar-menu-item span:visited,
+.sidebar-menu-item span::selection {
+  text-decoration: none;
+  outline: none;
+  background: transparent;
 }
 
 .sidebar-menu-item i {
@@ -140,30 +204,33 @@
   flex: 1;
   padding: 32px;
   overflow-y: auto;
+  /* 确保滚动平滑 */
+  scroll-behavior: smooth;
 }
 
 .section-title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .playlist-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 24px;
-  margin-bottom: 32px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .playlist-item {
   cursor: pointer;
+  max-width: 150px;
 }
 
 .playlist-image-container {
   aspect-ratio: 1;
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .playlist-image {
@@ -178,12 +245,15 @@
 }
 
 .playlist-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .playlist-info {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-secondary);
 }
 
@@ -204,6 +274,9 @@
 
 .song-list-body {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  max-height: 500px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
 .song-item {
@@ -332,10 +405,19 @@
   background-color: var(--primary);
   border-radius: 9999px;
   color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .play-button:hover {
   opacity: 0.8;
+}
+
+/* Adjust the play icon position slightly */
+.play-button .fa-play {
+  margin-left: 3px;
 }
 
 .progress-container {
@@ -359,6 +441,12 @@
 }
 
 /* 响应式布局 */
+@media (min-width: 1400px) {
+  .playlist-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  }
+}
+
 @media (max-width: 1200px) {
   .now-playing {
     width: 250px;

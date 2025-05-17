@@ -33,7 +33,7 @@
         "depends": []
       },
       "externalBin": [
-        "../bin/app_macos_x64"
+        "../bin/app_macos_arm64"
       ],
       "icon": [
         "icons/32x32.png",

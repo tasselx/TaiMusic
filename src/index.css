@@ -15,6 +15,46 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  text-decoration: none; /* 全局移除文本装饰 */
+}
+
+/* 确保所有链接和可点击元素没有下划线 */
+a, a:hover, a:focus, a:active, a:visited,
+[role="button"], [role="button"]:hover, [role="button"]:focus, [role="button"]:active {
+  text-decoration: none;
+  outline: none;
+}
+
+/* 防止文本选择和双击时出现的下划线 */
+button,
+.sidebar-menu-item,
+.player-button,
+.play-button,
+.playlist-item,
+.song-item,
+.logo,
+.user-button,
+.sidebar-title,
+.section-title,
+.playlist-title,
+.playlist-info,
+.song-title,
+.song-artist,
+.song-album,
+.song-duration,
+.now-playing-info h4,
+.now-playing-info p {
+  user-select: none; /* 防止文本被选中 */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* 自定义文本选择样式，确保没有下划线 */
+::selection {
+  background-color: rgba(29, 185, 84, 0.3); /* 使用主题色的半透明版本 */
+  color: inherit;
+  text-decoration: none;
 }
 
 body {
@@ -24,24 +64,31 @@ body {
   overflow: hidden;
 }
 
-/* 自定义滚动条 */
+/* 隐藏滚动条但保留滚动功能 */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 0;
+  height: 0;
+  display: none;
 }
 
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+/* 确保Firefox也隐藏滚动条 */
+* {
+  scrollbar-width: none;
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+/* 确保IE也隐藏滚动条 */
+* {
+  -ms-overflow-style: none;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+/* 防止双击选中文本 */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 禁用双击选中文本 */
+body {
+  -webkit-touch-callout: none;
 }
 
 /* 进度条和音量滑块 */
