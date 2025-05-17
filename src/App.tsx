@@ -1,8 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import SearchBar from './components/SearchBar';
 import Player from './components/Player';
+import DailyRecommendations from './components/DailyRecommendations';
+import CacheManager from './components/CacheManager';
+import CachedImage from './components/CachedImage';
+import { DEFAULT_COVER, DAILY_RECOMMEND_COVER } from './constants';
+import { formatDuration, formatCoverUrl } from './utils';
 import {
   useUIStore,
   useSearchStore,
@@ -11,6 +16,9 @@ import {
 } from './store';
 
 const App: React.FC = () => {
+  // 状态管理
+  const [showCacheManager, setShowCacheManager] = useState<boolean>(false);
+
   // 使用Zustand状态管理
   const { setWindowSize } = useUIStore();
   const { searchTerm, searchResults, setSearchTerm, performSearch } = useSearchStore();
@@ -33,7 +41,7 @@ const App: React.FC = () => {
       id: 3,
       title: "爵士乐精选集",
       plays: "56.8万",
-      imageUrl: "https://ai-public.mastergo.com/ai/img_res/fc2eb9ec5941d5f270590f255eded30b.jpg"
+      imageUrl: DAILY_RECOMMEND_COVER
     },
     {
       id: 4,
@@ -196,8 +204,8 @@ const App: React.FC = () => {
                     <div key={song.id || index} className="song-item">
                       <div className="song-number">{index + 1}</div>
                       <div className="song-title-container">
-                        <img
-                          src={song.pic || "https://ai-public.mastergo.com/ai/img_res/d182eccb133f8f85f65ac0b0c56773fb.jpg"}
+                        <CachedImage
+                          src={song.sizable_cover ? formatCoverUrl(song.sizable_cover) : (song.pic || DEFAULT_COVER)}
                           className="song-image"
                           alt={song.name}
                         />
@@ -205,7 +213,7 @@ const App: React.FC = () => {
                       </div>
                       <div className="song-artist search-result-text">{song.singer}</div>
                       <div className="song-album search-result-text">{song.album}</div>
-                      <div className="song-duration">{song.duration || "--:--"}</div>
+                      <div className="song-duration">{formatDuration(song.duration)}</div>
                     </div>
                   ))}
                 </div>
@@ -213,23 +221,7 @@ const App: React.FC = () => {
             </div>
           )}
 
-          <div>
-            <h2 className="section-title">每日推荐</h2>
-            <div className="playlist-grid">
-              {/* 这里可以添加每日推荐的内容 */}
-              <div className="playlist-item">
-                <div className="playlist-image-container">
-                  <img
-                    src="https://ai-public.mastergo.com/ai/img_res/fc2eb9ec5941d5f270590f255eded30b.jpg"
-                    className="playlist-image"
-                    alt="每日推荐歌曲"
-                  />
-                </div>
-                <h3 className="playlist-title">每日30首</h3>
-                <p className="playlist-info">根据您的喜好推荐</p>
-              </div>
-            </div>
-          </div>
+          <DailyRecommendations />
 
           <div>
             <h2 className="section-title">推荐歌单</h2>
@@ -237,7 +229,7 @@ const App: React.FC = () => {
               {recommendedPlaylists.map(playlist => (
                 <div key={playlist.id} className="playlist-item">
                   <div className="playlist-image-container">
-                    <img
+                    <CachedImage
                       src={playlist.imageUrl}
                       className="playlist-image"
                       alt={playlist.title}
@@ -253,6 +245,21 @@ const App: React.FC = () => {
       </div>
 
       <Player />
+
+      {/* 缓存管理器 */}
+      <CacheManager
+        isVisible={showCacheManager}
+        onClose={() => setShowCacheManager(false)}
+      />
+
+      {/* 缓存管理按钮 */}
+      <button
+        className="cache-manager-button"
+        onClick={() => setShowCacheManager(true)}
+        title="缓存管理"
+      >
+        <i className="fas fa-database"></i>
+      </button>
     </div>
   );
 }

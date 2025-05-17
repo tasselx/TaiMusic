@@ -19,6 +19,7 @@ export interface SearchResult {
   album: string;
   duration?: string;
   pic?: string;
+  sizable_cover?: string; // 可调整大小的封面URL
 }
 
 // 歌单类型
@@ -37,6 +38,7 @@ export interface Song {
   album: string;
   duration: string;
   imageUrl: string;
+  sizable_cover?: string; // 可调整大小的封面URL
 }
 
 // 轮播图类型

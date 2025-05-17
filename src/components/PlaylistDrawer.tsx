@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { DEFAULT_COVER } from '../constants';
+import { formatDuration } from '../utils';
+import CachedImage from './CachedImage';
 
 /**
  * 播放列表组件
@@ -17,7 +20,7 @@ const playlistData = [
     artist: "The Weeknd",
     album: "After Hours",
     duration: "3:20",
-    imageUrl: "https://ai-public.mastergo.com/ai/img_res/d182eccb133f8f85f65ac0b0c56773fb.jpg"
+    imageUrl: DEFAULT_COVER
   },
   {
     id: 2,
@@ -25,7 +28,7 @@ const playlistData = [
     artist: "Ed Sheeran",
     album: "÷ (Divide)",
     duration: "3:53",
-    imageUrl: "https://ai-public.mastergo.com/ai/img_res/d182eccb133f8f85f65ac0b0c56773fb.jpg"
+    imageUrl: DEFAULT_COVER
   },
   {
     id: 3,
@@ -33,7 +36,7 @@ const playlistData = [
     artist: "Tones and I",
     album: "The Kids Are Coming",
     duration: "3:29",
-    imageUrl: "https://ai-public.mastergo.com/ai/img_res/d182eccb133f8f85f65ac0b0c56773fb.jpg"
+    imageUrl: DEFAULT_COVER
   },
   {
     id: 4,
@@ -41,7 +44,7 @@ const playlistData = [
     artist: "Harry Styles",
     album: "Fine Line",
     duration: "2:54",
-    imageUrl: "https://ai-public.mastergo.com/ai/img_res/d182eccb133f8f85f65ac0b0c56773fb.jpg"
+    imageUrl: DEFAULT_COVER
   },
   {
     id: 5,
@@ -49,7 +52,7 @@ const playlistData = [
     artist: "Dua Lipa",
     album: "Future Nostalgia",
     duration: "3:03",
-    imageUrl: "https://ai-public.mastergo.com/ai/img_res/d182eccb133f8f85f65ac0b0c56773fb.jpg"
+    imageUrl: DEFAULT_COVER
   }
 ];
 
@@ -119,12 +122,12 @@ const PlaylistDrawer: React.FC<PlaylistDrawerProps> = ({ isVisible, onClose }) =
               <div key={song.id} className="song-item">
                 <div className="song-number">{song.id}</div>
                 <div className="song-title-container">
-                  <img src={song.imageUrl} className="song-image" alt={song.title} />
+                  <CachedImage src={song.imageUrl} className="song-image" alt={song.title} />
                   <span className="song-title">{song.title}</span>
                 </div>
                 <div className="song-artist">{song.artist}</div>
                 <div className="song-album">{song.album}</div>
-                <div className="song-duration">{song.duration}</div>
+                <div className="song-duration">{formatDuration(song.duration)}</div>
               </div>
             ))}
           </div>
