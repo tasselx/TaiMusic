@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { usePlayerStore } from '../store';
+import PlaylistDrawer from './PlaylistDrawer';
 
 /**
  * 使用Zustand状态管理的播放器组件
@@ -17,6 +18,14 @@ const Player: React.FC = () => {
     next,
     previous
   } = usePlayerStore();
+
+  // 播放列表显示状态
+  const [showPlaylist, setShowPlaylist] = useState(false);
+
+  // 切换播放列表显示状态
+  const togglePlaylist = () => {
+    setShowPlaylist(!showPlaylist);
+  };
 
   // 默认歌曲信息
   const defaultSong = {
@@ -85,10 +94,19 @@ const Player: React.FC = () => {
           value={volume}
           onChange={(e) => setVolume(Number(e.target.value))}
         />
-        <div className="player-button">
+        <div
+          className={`player-button toggle-recently-played ${showPlaylist ? 'active' : ''}`}
+          onClick={togglePlaylist}
+        >
           <i className="fas fa-list"></i>
         </div>
       </div>
+
+      {/* 播放列表组件 */}
+      <PlaylistDrawer
+        isVisible={showPlaylist}
+        onClose={() => setShowPlaylist(false)}
+      />
     </footer>
   );
 };

@@ -16,49 +16,6 @@ const App: React.FC = () => {
   const { searchTerm, searchResults, setSearchTerm, performSearch } = useSearchStore();
   const { checkApiStatus } = useApiStore();
 
-  const playlistData = [
-    {
-      id: 1,
-      title: "星空漫游",
-      artist: "陈思琪",
-      album: "夜空之下",
-      duration: "04:32",
-      imageUrl: "https://ai-public.mastergo.com/ai/img_res/d182eccb133f8f85f65ac0b0c56773fb.jpg"
-    },
-    {
-      id: 2,
-      title: "城市霓虹",
-      artist: "李明轩",
-      album: "都市物语",
-      duration: "03:45",
-      imageUrl: "https://ai-public.mastergo.com/ai/img_res/d37f02e4cac045e6c9230d9692eee71f.jpg"
-    },
-    {
-      id: 3,
-      title: "雨后彩虹",
-      artist: "张雨晴",
-      album: "春日记忆",
-      duration: "05:18",
-      imageUrl: "https://ai-public.mastergo.com/ai/img_res/d8ff2ed034e46e3e829cd5bd9c8483c7.jpg"
-    },
-    {
-      id: 4,
-      title: "海边微风",
-      artist: "王海涛",
-      album: "夏日情书",
-      duration: "04:15",
-      imageUrl: "https://ai-public.mastergo.com/ai/img_res/e6e7e62a51064304818286f3549376c6.jpg"
-    },
-    {
-      id: 5,
-      title: "山间晨曦",
-      artist: "林清风",
-      album: "自然之声",
-      duration: "03:59",
-      imageUrl: "https://ai-public.mastergo.com/ai/img_res/7085b61de7117e1f800c35e08efa6a3f.jpg"
-    }
-  ];
-
   const recommendedPlaylists = [
     {
       id: 1,
@@ -177,16 +134,22 @@ const App: React.FC = () => {
             <h3 className="sidebar-title">在线音乐</h3>
             <ul className="sidebar-menu">
               <li className="sidebar-menu-item">
-                <i className="fas fa-compass"></i>
-                <span>发现音乐</span>
+                <div className="sidebar-menu-item-content">
+                  <i className="fas fa-compass"></i>
+                  <span>发现音乐</span>
+                </div>
               </li>
               <li className="sidebar-menu-item">
-                <i className="fas fa-podcast"></i>
-                <span>播客</span>
+                <div className="sidebar-menu-item-content">
+                  <i className="fas fa-podcast"></i>
+                  <span>播客</span>
+                </div>
               </li>
               <li className="sidebar-menu-item">
-                <i className="fas fa-video"></i>
-                <span>视频</span>
+                <div className="sidebar-menu-item-content">
+                  <i className="fas fa-video"></i>
+                  <span>视频</span>
+                </div>
               </li>
             </ul>
           </div>
@@ -194,16 +157,22 @@ const App: React.FC = () => {
             <h3 className="sidebar-title">我的音乐</h3>
             <ul className="sidebar-menu">
               <li className="sidebar-menu-item">
-                <i className="fas fa-heart"></i>
-                <span>我喜欢</span>
+                <div className="sidebar-menu-item-content">
+                  <i className="fas fa-heart"></i>
+                  <span>我喜欢</span>
+                </div>
               </li>
               <li className="sidebar-menu-item">
-                <i className="fas fa-download"></i>
-                <span>本地与下载</span>
+                <div className="sidebar-menu-item-content">
+                  <i className="fas fa-download"></i>
+                  <span>本地与下载</span>
+                </div>
               </li>
               <li className="sidebar-menu-item">
-                <i className="fas fa-history"></i>
-                <span>最近播放</span>
+                <div className="sidebar-menu-item-content">
+                  <i className="fas fa-history"></i>
+                  <span>最近播放</span>
+                </div>
               </li>
             </ul>
           </div>
@@ -245,6 +214,24 @@ const App: React.FC = () => {
           )}
 
           <div>
+            <h2 className="section-title">每日推荐</h2>
+            <div className="playlist-grid">
+              {/* 这里可以添加每日推荐的内容 */}
+              <div className="playlist-item">
+                <div className="playlist-image-container">
+                  <img
+                    src="https://ai-public.mastergo.com/ai/img_res/fc2eb9ec5941d5f270590f255eded30b.jpg"
+                    className="playlist-image"
+                    alt="每日推荐歌曲"
+                  />
+                </div>
+                <h3 className="playlist-title">每日30首</h3>
+                <p className="playlist-info">根据您的喜好推荐</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
             <h2 className="section-title">推荐歌单</h2>
             <div className="playlist-grid">
               {recommendedPlaylists.map(playlist => (
@@ -260,33 +247,6 @@ const App: React.FC = () => {
                   <p className="playlist-info">播放量：{playlist.plays}</p>
                 </div>
               ))}
-            </div>
-          </div>
-
-          <div>
-            <h2 className="section-title">最近播放</h2>
-            <div className="song-list">
-              <div className="song-list-header">
-                <div className="song-number">#</div>
-                <div style={{ flex: 1 }}>歌曲标题</div>
-                <div className="song-artist">歌手</div>
-                <div className="song-album">专辑</div>
-                <div className="song-duration">时长</div>
-              </div>
-              <div className="song-list-body">
-                {playlistData.map((song) => (
-                  <div key={song.id} className="song-item">
-                    <div className="song-number">{song.id}</div>
-                    <div className="song-title-container">
-                      <img src={song.imageUrl} className="song-image" alt={song.title} />
-                      <span className="song-title">{song.title}</span>
-                    </div>
-                    <div className="song-artist">{song.artist}</div>
-                    <div className="song-album">{song.album}</div>
-                    <div className="song-duration">{song.duration}</div>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </main>
