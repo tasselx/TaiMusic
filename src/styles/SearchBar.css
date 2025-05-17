@@ -1,0 +1,125 @@
+/* 搜索容器样式 */
+.search-container {
+  position: relative;
+  width: 400px;
+  /* 禁止拖动 */
+  -webkit-app-region: no-drag;
+  /* 防止整个容器被选中 */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* 搜索输入框样式 */
+.search-input {
+  width: 100%;
+  height: 40px;
+  background-color: #333;
+  border-radius: 9999px;
+  padding: 0 45px 0 40px; /* 左侧为搜索图标留出空间，右侧为清除图标留出适当空间 */
+  font-size: 14px;
+  border: none;
+  color: var(--text);
+  /* 增强文本选择功能 */
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  cursor: text !important;
+  /* 防止双击时出现绿色色块 */
+  -webkit-tap-highlight-color: transparent !important;
+  /* 防止整个搜索框被选中时出现背景色 */
+  outline-color: transparent;
+}
+
+.search-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3); /* 使用半透明白色替代绿色 */
+}
+
+/* 防止搜索框在选中、激活或双击时出现绿色背景 */
+.search-input:active,
+.search-input:focus-visible,
+.search-input:focus-within,
+.search-input:-webkit-autofill,
+.search-input:-webkit-autofill:hover,
+.search-input:-webkit-autofill:focus {
+  background-color: #333 !important;
+  -webkit-text-fill-color: var(--text) !important;
+  -webkit-box-shadow: 0 0 0 30px #333 inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* 确保搜索框中的文本可以被选中和复制，使用自定义选择颜色 */
+.search-input::selection {
+  background-color: rgba(100, 100, 100, 0.5); /* 使用半透明灰色作为选择背景 */
+  color: white; /* 确保选中文本颜色清晰可见 */
+}
+
+/* 搜索图标样式 */
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+}
+
+/* 清除按钮样式 */
+.clear-button {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: white; /* 使用白色，更加明显 */
+  cursor: pointer;
+  opacity: 0.85; /* 提高不透明度 */
+  transition: all 0.2s ease;
+  /* 确保按钮在搜索框上方 */
+  z-index: 10;
+  /* 设置按钮大小 - 缩小尺寸 */
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  /* 防止按钮获取焦点时出现轮廓 */
+  outline: none;
+  /* 添加更明显的背景色和边框 */
+  background-color: rgba(100, 100, 100, 0.5);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.clear-button:hover {
+  opacity: 1;
+  color: var(--text);
+  background-color: rgba(120, 120, 120, 0.7);
+}
+
+.clear-button:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.clear-button i {
+  font-size: 14px; /* 缩小图标尺寸 */
+  pointer-events: none; /* 确保图标不会干扰点击事件 */
+}
+
+/* 响应式样式 */
+@media (max-width: 800px) {
+  .search-container {
+    width: 300px;
+  }
+}
+
+/* 窗口高度非常小时的优化 */
+@media (max-height: 600px) {
+  .search-input {
+    height: 34px;
+  }
+}

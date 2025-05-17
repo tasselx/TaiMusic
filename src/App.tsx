@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import SearchBar from './components/SearchBar';
 
 // 定义搜索结果的接口
 interface SearchResult {
@@ -21,9 +22,6 @@ const App: React.FC = () => {
   const [progress, setProgress] = useState(30);
   const [isPlaying, setIsPlaying] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-
-  // 创建搜索输入框的引用
-  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const playlistData = [
     {
@@ -172,27 +170,27 @@ const App: React.FC = () => {
 
   // 处理头部点击事件，使搜索框失去焦点
   const handleHeaderClick = () => {
-    // 如果搜索框有引用且当前有焦点，则使其失去焦点
-    if (searchInputRef.current && document.activeElement === searchInputRef.current) {
-      searchInputRef.current.blur();
+    // 清除任何可能的文本选择
+    if (window.getSelection) {
+      window.getSelection()?.empty();
+    }
 
-      // 清除任何可能的文本选择
-      if (window.getSelection) {
-        window.getSelection()?.empty();
-      }
+    // 使文档中任何具有焦点的元素失去焦点
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
     }
   };
 
   // 处理头部双击事件，使搜索框失去焦点并清除选择
   const handleHeaderDoubleClick = () => {
-    // 无论是否有文本被选中，都使搜索框失去焦点
-    if (searchInputRef.current) {
-      searchInputRef.current.blur();
-    }
-
     // 清除任何可能的文本选择
     if (window.getSelection) {
       window.getSelection()?.empty();
+    }
+
+    // 使文档中任何具有焦点的元素失去焦点
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
     }
   };
 
@@ -205,38 +203,14 @@ const App: React.FC = () => {
         onDoubleClick={handleHeaderDoubleClick}
       >
         <div className="logo">Tai Music</div>
-        <div
-          className="search-container"
-          onClick={(e) => e.stopPropagation()}
-          onDoubleClick={(e) => e.stopPropagation()}
-        >
-          <input
-            ref={searchInputRef}
-            type="text"
-            className="search-input"
-            placeholder="搜索音乐、歌手、歌单"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleSearch();
-              }
-            }}
-            onMouseDown={(e) => {
-              // 阻止事件冒泡，允许在搜索框内进行文本选择操作
-              e.stopPropagation();
-            }}
-            onDoubleClick={(e) => {
-              // 阻止事件冒泡，确保双击事件不会传播到header
-              e.stopPropagation();
-            }}
-            onSelect={(e) => {
-              // 阻止选择事件冒泡，防止整个搜索框被选中
-              e.stopPropagation();
-            }}
-          />
-          <i className="fas fa-search search-icon"></i>
-        </div>
+        <SearchBar
+          value={searchTerm}
+          onChange={(value) => {
+            console.log('设置搜索词:', value);
+            setSearchTerm(value);
+          }}
+          onSearch={handleSearch}
+        />
         <div
           className="user-button"
           onClick={(e) => e.stopPropagation()}
