@@ -18,11 +18,14 @@
   text-decoration: none; /* 全局移除文本装饰 */
 }
 
-/* 确保所有链接和可点击元素没有下划线 */
-a, a:hover, a:focus, a:active, a:visited,
-[role="button"], [role="button"]:hover, [role="button"]:focus, [role="button"]:active {
-  text-decoration: none;
-  outline: none;
+/* 确保所有链接和可点击元素没有下划线 - 桌面端优化 */
+a, a:hover, a:focus, a:active, a:visited, a:link,
+[role="button"], [role="button"]:hover, [role="button"]:focus, [role="button"]:active,
+.sidebar-menu-item, .sidebar-menu-item:hover, .sidebar-menu-item:active, .sidebar-menu-item:focus,
+.sidebar-menu-item span, .sidebar-menu-item span:hover, .sidebar-menu-item span:active, .sidebar-menu-item span:focus {
+  text-decoration: none !important;
+  outline: none !important;
+  border-bottom: none !important;
 }
 
 /* 防止文本选择和双击时出现的下划线 */
@@ -62,9 +65,12 @@ body {
   background-color: var(--background);
   color: var(--text);
   overflow: hidden;
+  /* 桌面端优化 */
+  -webkit-user-select: none; /* 防止文本选择 */
+  -webkit-app-region: no-drag; /* 默认不可拖动 */
 }
 
-/* 隐藏滚动条但保留滚动功能 */
+/* 隐藏滚动条但保留滚动功能 - 桌面端优化 */
 ::-webkit-scrollbar {
   width: 0;
   height: 0;
@@ -79,6 +85,13 @@ body {
 /* 确保IE也隐藏滚动条 */
 * {
   -ms-overflow-style: none;
+}
+
+/* 确保所有可滚动区域在桌面端有更好的滚动体验 */
+.sidebar, .content, .song-list-body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* 平滑滚动 */
+  scroll-behavior: smooth;
 }
 
 /* 防止双击选中文本 */

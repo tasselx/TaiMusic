@@ -1,4 +1,4 @@
-/* 布局样式 */
+/* 布局样式 - 桌面端优化 */
 .app-container {
   display: flex;
   flex-direction: column;
@@ -7,8 +7,12 @@
   margin: 0 auto;
   height: 100vh;
   min-height: 600px;
-  /* 为无装饰窗口预留空间 */
-  padding-top: 10px; /* 增加顶部空间，为窗口标题栏留出空间 */
+  /* 为无装饰窗口预留空间 - 桌面端优化 */
+  padding-top: 15px; /* 增加顶部空间，为窗口标题栏留出更多空间 */
+  /* 桌面应用窗口边框效果 */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 /* 防止所有可交互元素的文本被选中 */
@@ -31,10 +35,11 @@ li,
   -moz-user-select: none !important;
   -ms-user-select: none !important;
   cursor: default; /* 防止显示文本选择光标 */
+  -webkit-app-region: no-drag !important; /* 禁止拖动 */
 }
 
-/* 允许输入框和文本区域可选 */
-input, textarea {
+/* 允许输入框和文本区域可选，并禁止拖动 */
+input, textarea, .search-input, .progress-bar, .volume-slider {
   user-select: text;
   -webkit-user-select: text;
   -moz-user-select: text;
@@ -42,15 +47,15 @@ input, textarea {
   cursor: text;
 }
 
-/* 头部样式 */
+/* 头部样式 - 桌面端优化 */
 .header {
   height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 32px;
-  margin-top: 8px; /* 增加顶部间距 */
-  margin-bottom: 4px; /* 增加底部间距 */
+  margin-top: 12px; /* 增加顶部间距，为窗口标题栏留出更多空间 */
+  margin-bottom: 6px; /* 增加底部间距 */
   border-bottom: 1px solid var(--border);
   /* 确保头部可以被拖动（用于移动窗口） */
   -webkit-app-region: drag;
@@ -189,10 +194,40 @@ input, textarea {
 .sidebar-menu-item span:focus,
 .sidebar-menu-item span:active,
 .sidebar-menu-item span:visited,
-.sidebar-menu-item span::selection {
-  text-decoration: none;
-  outline: none;
-  background: transparent;
+.sidebar-menu-item span::selection,
+.sidebar-menu-item span:hover,
+.sidebar-menu-item span:link,
+.sidebar-menu-item.active span,
+.sidebar-menu-item.selected span {
+  text-decoration: none !important;
+  outline: none !important;
+  background: transparent !important;
+  border-bottom: none !important;
+}
+
+/* 特别确保"我喜欢"元素在选中时没有下划线 - 桌面端优化 */
+/* 使用更兼容的选择器 */
+.sidebar-menu-item,
+.sidebar-menu-item:hover,
+.sidebar-menu-item:active,
+.sidebar-menu-item:focus,
+.sidebar-menu-item.active,
+.sidebar-menu-item.selected {
+  text-decoration: none !important;
+  outline: none !important;
+  border-bottom: none !important;
+}
+
+/* 为所有侧边栏菜单项添加类，以便在App.tsx中为"我喜欢"元素添加特定类 */
+.like-item,
+.like-item:hover,
+.like-item:active,
+.like-item:focus,
+.like-item.active,
+.like-item.selected {
+  text-decoration: none !important;
+  outline: none !important;
+  border-bottom: none !important;
 }
 
 .sidebar-menu-item i {
@@ -216,14 +251,14 @@ input, textarea {
 
 .playlist-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 14px;
   margin-bottom: 24px;
 }
 
 .playlist-item {
   cursor: pointer;
-  max-width: 150px;
+  max-width: 130px; /* 桌面端优化：减小推荐歌单组件尺寸 */
 }
 
 .playlist-image-container {
@@ -245,7 +280,7 @@ input, textarea {
 }
 
 .playlist-title {
-  font-size: 13px;
+  font-size: 12px; /* 桌面端优化：减小字体大小 */
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -253,10 +288,9 @@ input, textarea {
 }
 
 .playlist-info {
-  font-size: 11px;
+  font-size: 10px; /* 桌面端优化：减小字体大小 */
   color: var(--text-secondary);
 }
-
 /* 歌曲列表 */
 .song-list {
   background-color: rgba(40, 40, 40, 0.3);
@@ -440,10 +474,15 @@ input, textarea {
   gap: 16px;
 }
 
-/* 响应式布局 */
+/* 响应式布局 - 桌面端优化 */
 @media (min-width: 1400px) {
   .playlist-grid {
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px; /* 桌面端优化：减小间距 */
+  }
+
+  .playlist-item {
+    max-width: 120px; /* 桌面端优化：进一步减小大屏幕下的组件尺寸 */
   }
 }
 
