@@ -11,8 +11,7 @@
   padding-top: 5px;
   /* 移除水平内边距，让内部元素自己控制边距 */
   overflow: hidden; /* 防止内容溢出 */
-  /* 添加过渡效果，使窗口大小变化时更加平滑 */
-  transition: all 0.3s ease;
+  /* 移除过渡效果，使全屏切换更加即时 */
   /* 使用flex布局，播放器已经固定定位 */
   display: flex;
   flex-direction: column;
@@ -42,12 +41,19 @@ li,
 }
 
 /* 允许输入框和文本区域可选，并禁止拖动 */
-input, textarea, .search-input, .progress-bar, .volume-slider {
+input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-text {
   user-select: text;
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
   cursor: text;
+}
+
+/* 确保搜索框中的文本可以被选中和复制，但不显示绿色背景 */
+.search-input::selection,
+.search-result-text::selection {
+  background-color: transparent; /* 移除绿色背景色 */
+  color: var(--text);
 }
 
 /* 头部样式 */
@@ -69,8 +75,7 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   /* 确保头部在最大化时能够适应整个窗口宽度 */
   width: 100%;
   box-sizing: border-box;
-  /* 添加过渡效果，使窗口大小变化时更加平滑 */
-  transition: padding 0.3s ease;
+  /* 移除过渡效果，使全屏切换更加即时 */
 }
 
 .logo {
@@ -97,11 +102,32 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   font-size: 14px;
   border: none;
   color: var(--text);
+  /* 增强文本选择功能 */
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  cursor: text !important;
+  /* 防止双击时出现绿色色块 */
+  -webkit-tap-highlight-color: transparent !important;
 }
 
 .search-input:focus {
   outline: none;
-  box-shadow: 0 0 0 2px var(--primary);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3); /* 使用半透明白色替代绿色 */
+}
+
+/* 防止搜索框在选中、激活或双击时出现绿色背景 */
+.search-input:active,
+.search-input:focus-visible,
+.search-input:focus-within,
+.search-input:-webkit-autofill,
+.search-input:-webkit-autofill:hover,
+.search-input:-webkit-autofill:focus {
+  background-color: #333 !important;
+  -webkit-text-fill-color: var(--text) !important;
+  -webkit-box-shadow: 0 0 0 30px #333 inset !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 .search-icon {
@@ -146,7 +172,7 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   box-sizing: border-box;
   /* 确保主内容区域可以适应窗口高度变化 */
   min-height: 0; /* 允许内容区域在必要时收缩 */
-  transition: all 0.3s ease; /* 平滑过渡 */
+  /* 移除过渡效果，使全屏切换更加即时 */
 }
 
 /* 侧边栏 */
@@ -155,9 +181,9 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   min-width: 200px;
   padding: 16px;
   border-right: 1px solid var(--border);
-  transition: all 0.3s ease;
+  /* 移除过渡效果，使全屏切换更加即时 */
   overflow-y: auto;
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   /* 添加最大宽度，确保侧边栏在大屏幕上不会过于宽 */
   max-width: 280px;
 }
@@ -256,14 +282,13 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   flex: 1;
   padding: 24px 32px;
   overflow-y: auto;
-  /* 确保滚动平滑 */
-  scroll-behavior: smooth;
+  /* 确保滚动即时，而不是平滑 */
+  scroll-behavior: auto;
   /* 添加最大宽度，确保内容在大屏幕上不会过于拉伸 */
   max-width: 1600px;
   margin: 0 auto;
   width: 100%;
-  /* 添加过渡效果，使窗口大小变化时更加平滑 */
-  transition: all 0.3s ease;
+  /* 移除过渡效果，使全屏切换更加即时 */
   /* 确保内容区域可以适应窗口高度变化 */
   min-height: 0; /* 允许内容区域在必要时收缩 */
   /* 为固定定位的播放器留出空间 */
@@ -301,7 +326,7 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s;
+  /* 移除过渡效果 */
 }
 
 .playlist-item:hover .playlist-image {
@@ -327,6 +352,19 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   border-radius: 8px;
 }
 
+/* 搜索结果样式 */
+.search-results {
+  margin-bottom: 32px;
+}
+
+.search-result-text {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  cursor: text !important;
+}
+
 .song-list-header {
   display: flex;
   align-items: center;
@@ -339,14 +377,14 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   max-height: 500px;
   overflow-y: auto;
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 .song-item {
   display: flex;
   align-items: center;
   padding: 12px 24px;
-  transition: background-color 0.2s;
+  /* 移除过渡效果 */
   border-radius: 8px;
 }
 
@@ -373,7 +411,8 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
 }
 
 .song-title {
-  transition: color 0.2s;
+  /* 无需过渡效果 */
+  color: inherit;
 }
 
 .song-title:hover {
@@ -413,8 +452,7 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   padding: 0 32px;
   width: 100%;
   box-sizing: border-box;
-  /* 添加过渡效果，使窗口大小变化时更加平滑 */
-  transition: padding 0.3s ease;
+  /* 移除过渡效果，使全屏切换更加即时 */
   /* 添加最大宽度，确保播放器内容在大屏幕上居中 */
   max-width: 100%;
   /* 确保播放器始终固定在窗口底部 */

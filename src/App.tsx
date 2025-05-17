@@ -1,16 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+
+// 定义搜索结果的接口
+interface SearchResult {
+  id?: string | number;
+  name: string;
+  singer: string;
+  album: string;
+  duration?: string;
+  pic?: string;
+}
 
 const App: React.FC = () => {
   const [apiStatus, setApiStatus] = useState('Loading...');
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [banners, setBanners] = useState([]);
   const [volume, setVolume] = useState(80);
   const [progress, setProgress] = useState(30);
   const [isPlaying, setIsPlaying] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  // 创建搜索输入框的引用
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const playlistData = [
     {
@@ -157,12 +170,21 @@ const App: React.FC = () => {
 
   // 搜索函数已在handleSearch中定义
 
+  // 处理头部点击事件，使搜索框失去焦点
+  const handleHeaderClick = () => {
+    // 如果搜索框有引用且当前有焦点，则使其失去焦点
+    if (searchInputRef.current && document.activeElement === searchInputRef.current) {
+      searchInputRef.current.blur();
+    }
+  };
+
   return (
     <div className="app-container">
-      <header className="header" data-tauri-drag-region>
+      <header className="header" data-tauri-drag-region onClick={handleHeaderClick}>
         <div className="logo">Tai Music</div>
-        <div className="search-container">
+        <div className="search-container" onClick={(e) => e.stopPropagation()}>
           <input
+            ref={searchInputRef}
             type="text"
             className="search-input"
             placeholder="搜索音乐、歌手、歌单"
@@ -176,7 +198,7 @@ const App: React.FC = () => {
           />
           <i className="fas fa-search search-icon"></i>
         </div>
-        <div className="user-button">
+        <div className="user-button" onClick={(e) => e.stopPropagation()}>
           <i className="fas fa-user"></i>
         </div>
       </header>
@@ -220,6 +242,40 @@ const App: React.FC = () => {
         </nav>
 
         <main className="content">
+          {/* 搜索结果显示 */}
+          {searchResults.length > 0 && (
+            <div className="search-results">
+              <h2 className="section-title">搜索结果</h2>
+              <div className="song-list">
+                <div className="song-list-header">
+                  <div className="song-number">#</div>
+                  <div style={{ flex: 1 }}>歌曲标题</div>
+                  <div className="song-artist">歌手</div>
+                  <div className="song-album">专辑</div>
+                  <div className="song-duration">时长</div>
+                </div>
+                <div className="song-list-body">
+                  {searchResults.map((song, index) => (
+                    <div key={song.id || index} className="song-item">
+                      <div className="song-number">{index + 1}</div>
+                      <div className="song-title-container">
+                        <img
+                          src={song.pic || "https://ai-public.mastergo.com/ai/img_res/d182eccb133f8f85f65ac0b0c56773fb.jpg"}
+                          className="song-image"
+                          alt={song.name}
+                        />
+                        <span className="song-title search-result-text">{song.name}</span>
+                      </div>
+                      <div className="song-artist search-result-text">{song.singer}</div>
+                      <div className="song-album search-result-text">{song.album}</div>
+                      <div className="song-duration">{song.duration || "--:--"}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           <div>
             <h2 className="section-title">推荐歌单</h2>
             <div className="playlist-grid">

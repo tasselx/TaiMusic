@@ -53,9 +53,16 @@ button,
   -ms-user-select: none;
 }
 
-/* 自定义文本选择样式，确保没有下划线 */
+/* 自定义文本选择样式，移除背景色 */
 ::selection {
-  background-color: rgba(29, 185, 84, 0.3); /* 使用主题色的半透明版本 */
+  background-color: transparent; /* 移除背景色 */
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 确保Firefox也使用相同的选择样式 */
+::-moz-selection {
+  background-color: transparent;
   color: inherit;
   text-decoration: none;
 }
