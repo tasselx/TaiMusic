@@ -13,6 +13,9 @@
   overflow: hidden; /* 防止内容溢出 */
   /* 添加过渡效果，使窗口大小变化时更加平滑 */
   transition: all 0.3s ease;
+  /* 使用flex布局，播放器已经固定定位 */
+  display: flex;
+  flex-direction: column;
 }
 
 /* 防止所有可交互元素的文本被选中 */
@@ -141,6 +144,9 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  /* 确保主内容区域可以适应窗口高度变化 */
+  min-height: 0; /* 允许内容区域在必要时收缩 */
+  transition: all 0.3s ease; /* 平滑过渡 */
 }
 
 /* 侧边栏 */
@@ -257,7 +263,11 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   margin: 0 auto;
   width: 100%;
   /* 添加过渡效果，使窗口大小变化时更加平滑 */
-  transition: padding 0.3s ease;
+  transition: all 0.3s ease;
+  /* 确保内容区域可以适应窗口高度变化 */
+  min-height: 0; /* 允许内容区域在必要时收缩 */
+  /* 为固定定位的播放器留出空间 */
+  padding-bottom: 96px; /* 播放器高度 + 额外空间 */
 }
 
 .section-title {
@@ -396,6 +406,7 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
 /* 底部播放器 */
 .player {
   height: 80px;
+  min-height: 80px; /* 确保最小高度 */
   border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -406,6 +417,13 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   transition: padding 0.3s ease;
   /* 添加最大宽度，确保播放器内容在大屏幕上居中 */
   max-width: 100%;
+  /* 确保播放器始终固定在窗口底部 */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--surface); /* 确保背景色与应用一致 */
+  z-index: 100; /* 确保播放器在所有内容之上 */
 }
 
 .now-playing {
@@ -543,6 +561,9 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   /* 调整播放器在中等大屏幕上的样式 */
   .player {
     padding: 0 38px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 1920px; /* 限制最大宽度 */
   }
 
   /* 调整头部在中等大屏幕上的样式 */
@@ -576,6 +597,9 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   /* 调整播放器在大屏幕上的样式 */
   .player {
     padding: 0 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 1920px; /* 限制最大宽度 */
   }
 
   /* 调整头部在大屏幕上的样式 */
@@ -609,6 +633,9 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
   /* 调整播放器在超大屏幕上的样式 */
   .player {
     padding: 0 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 2200px; /* 限制最大宽度 */
   }
 
   /* 调整头部在超大屏幕上的样式 */
@@ -657,5 +684,54 @@ input, textarea, .search-input, .progress-bar, .volume-slider {
 
   .player-buttons {
     gap: 16px;
+  }
+}
+
+/* 窗口高度较小时的优化 */
+@media (max-height: 700px) {
+  .player {
+    height: 70px;
+    min-height: 70px;
+  }
+
+  .now-playing-image {
+    width: 50px;
+    height: 50px;
+  }
+
+  .play-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .content {
+    padding-top: 16px;
+    padding-bottom: 86px; /* 调整为播放器高度 + 额外空间 */
+  }
+}
+
+/* 窗口高度非常小时的优化 */
+@media (max-height: 600px) {
+  .player {
+    height: 60px;
+    min-height: 60px;
+  }
+
+  .now-playing-image {
+    width: 40px;
+    height: 40px;
+  }
+
+  .header {
+    height: 54px;
+  }
+
+  .search-input {
+    height: 34px;
+  }
+
+  .content {
+    padding-top: 12px;
+    padding-bottom: 76px; /* 调整为播放器高度 + 额外空间 */
   }
 }
