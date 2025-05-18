@@ -24,7 +24,7 @@ export interface SearchResult {
 
 // 歌单类型
 export interface Playlist {
-  id: number;
+  id: string | number;
   title: string;
   plays: string;
   imageUrl: string;
@@ -32,18 +32,19 @@ export interface Playlist {
 
 // 歌曲类型
 export interface Song {
-  id: number;
+  id: string | number;
   title: string;
   artist: string;
   album: string;
   duration: string;
   imageUrl: string;
   sizable_cover?: string; // 可调整大小的封面URL
+  url?: string; // 歌曲播放地址
 }
 
 // 轮播图类型
 export interface Banner {
-  id: number;
+  id: string | number;
   imageUrl: string;
   title: string;
   link: string;

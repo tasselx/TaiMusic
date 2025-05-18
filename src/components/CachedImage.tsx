@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { getCachedImage, cacheImage } from '../utils/imageCache';
 import { DEFAULT_COVER } from '../constants';
+import { httpRequest } from '../utils';
 
 interface CachedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
@@ -28,21 +29,21 @@ const CachedImage: React.FC<CachedImageProps> = ({
 
   useEffect(() => {
     let isMounted = true;
-    
+
     const loadImage = async () => {
       if (!src) {
         setImageSrc(fallbackSrc);
         setIsLoading(false);
         return;
       }
-      
+
       try {
         setIsLoading(true);
         setHasError(false);
-        
+
         // 尝试从缓存获取图片
         const cachedBlob = await getCachedImage(src);
-        
+
         if (cachedBlob && isMounted) {
           // 如果有缓存，直接使用
           const objectUrl = URL.createObjectURL(cachedBlob);
@@ -51,19 +52,23 @@ const CachedImage: React.FC<CachedImageProps> = ({
           onLoad?.();
           return;
         }
-        
-        // 如果没有缓存，从网络加载
-        const response = await fetch(src);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+
+        // 如果没有缓存，使用axios从网络加载
+        const response = await httpRequest.getInstance().get(src, {
+          responseType: 'blob',
+          baseURL: '', // 覆盖默认的baseURL，直接使用完整URL
+          timeout: 15000 // 图片加载可能需要更长的超时时间
+        });
+
+        if (!response.data) {
+          throw new Error(`Failed to fetch image: ${response.status}`);
         }
-        
-        const blob = await response.blob();
-        
+
+        const blob = response.data;
+
         // 缓存图片
         await cacheImage(src, blob);
-        
+
         if (isMounted) {
           const objectUrl = URL.createObjectURL(blob);
           setImageSrc(objectUrl);
@@ -72,7 +77,7 @@ const CachedImage: React.FC<CachedImageProps> = ({
         }
       } catch (error) {
         console.error('加载图片失败:', error);
-        
+
         if (isMounted) {
           setImageSrc(fallbackSrc);
           setIsLoading(false);
@@ -81,9 +86,9 @@ const CachedImage: React.FC<CachedImageProps> = ({
         }
       }
     };
-    
+
     loadImage();
-    
+
     return () => {
       isMounted = false;
     };
@@ -100,9 +105,9 @@ const CachedImage: React.FC<CachedImageProps> = ({
         {...props}
         src={imageSrc}
         alt={alt}
-        style={{ 
+        style={{
           ...props.style,
-          display: isLoading ? 'none' : 'block' 
+          display: isLoading ? 'none' : 'block'
         }}
       />
     </>
