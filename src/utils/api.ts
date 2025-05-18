@@ -2,7 +2,7 @@
  * API服务
  * 封装所有API请求，统一管理API接口
  */
-import httpRequest from './httpRequest';
+import { get } from './httpClient';
 import { formatCoverUrl } from './formatters';
 
 // API接口常量
@@ -90,8 +90,9 @@ class ApiService {
    */
   public async checkApiStatus(): Promise<boolean> {
     try {
-      const response = await httpRequest.get(API_ENDPOINTS.BASE);
-      return response.code === 200 || response.status === 200;
+      const response = await get(API_ENDPOINTS.BASE);
+      // httpClient 响应拦截器已经提取了 data
+      return response && (response.code === 200 || response.status === 200);
     } catch (error) {
       console.error('API服务连接失败:', error);
       return false;
@@ -104,7 +105,7 @@ class ApiService {
    */
   public async getBanners(): Promise<Banner[]> {
     try {
-      const response = await httpRequest.get(API_ENDPOINTS.BANNER);
+      const response = await get(API_ENDPOINTS.BANNER);
 
       if (response && response.data && response.data.banner) {
         // 转换数据格式
@@ -130,7 +131,7 @@ class ApiService {
   public async getDailyRecommendations(): Promise<Song[]> {
     try {
       console.log('开始获取每日推荐数据...');
-      const response = await httpRequest.get(API_ENDPOINTS.DAILY_RECOMMEND);
+      const response = await get(API_ENDPOINTS.DAILY_RECOMMEND);
 
       // 检查数据结构
       if (response && response.data) {
@@ -180,7 +181,7 @@ class ApiService {
         return [];
       }
 
-      const response = await httpRequest.get(API_ENDPOINTS.SEARCH, {
+      const response = await get(API_ENDPOINTS.SEARCH, {
         keywords: keyword,
         page,
         pagesize: pageSize
@@ -211,7 +212,7 @@ class ApiService {
    */
   public async getHotSearchKeywords(): Promise<string[]> {
     try {
-      const response = await httpRequest.get(API_ENDPOINTS.SEARCH_HOT);
+      const response = await get(API_ENDPOINTS.SEARCH_HOT);
 
       if (response && response.data && response.data.info) {
         return response.data.info.map((item: any) => item.keyword || '');
@@ -231,7 +232,7 @@ class ApiService {
    */
   public async getUserDetail(userId: string): Promise<UserInfo> {
     try {
-      const response = await httpRequest.get(API_ENDPOINTS.USER_DETAIL, { userid: userId });
+      const response = await get(API_ENDPOINTS.USER_DETAIL, { userid: userId });
 
       if (response && response.data) {
         return {
@@ -266,13 +267,13 @@ class ApiService {
    */
   public async checkUserStatus(token: string): Promise<boolean> {
     try {
-      const response = await httpRequest.get(API_ENDPOINTS.USER_STATUS, null, {
+      const response = await get(API_ENDPOINTS.USER_STATUS, {}, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
-      return response.code === 200 || response.status === 200;
+      return response && (response.code === 200 || response.status === 200);
     } catch (error) {
       console.error('检查用户状态失败:', error);
       return false;

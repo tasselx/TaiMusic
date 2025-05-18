@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { getCachedImage, cacheImage } from '../utils/imageCache';
 import { DEFAULT_COVER } from '../constants';
-import { httpRequest } from '../utils';
+import httpClient from '../utils/httpClient';
 
 interface CachedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
@@ -53,8 +53,8 @@ const CachedImage: React.FC<CachedImageProps> = ({
           return;
         }
 
-        // 如果没有缓存，使用axios从网络加载
-        const response = await httpRequest.getInstance().get(src, {
+        // 如果没有缓存，使用httpClient从网络加载
+        const response = await httpClient.get(src, {}, {
           responseType: 'blob',
           baseURL: '', // 覆盖默认的baseURL，直接使用完整URL
           timeout: 15000 // 图片加载可能需要更长的超时时间

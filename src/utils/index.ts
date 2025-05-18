@@ -5,7 +5,9 @@
 
 export * from './formatters';
 export * from './imageCache';
-export * from './httpRequest';
-export { default as httpRequest } from './httpRequest';
 export { default as apiService } from './api';
 export * from './api';
+
+// 导出HTTP客户端
+export * from './httpClient';
+export { default as httpClient } from './httpClient';
