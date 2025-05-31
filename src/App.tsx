@@ -4,7 +4,6 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import SearchBar from './components/SearchBar';
 import Player from './components/Player';
 import DailyRecommendations from './components/DailyRecommendations';
-import CacheManager from './components/CacheManager';
 import CachedImage from './components/CachedImage';
 import UserDropdown from './components/UserDropdown';
 import { DEFAULT_COVER, DAILY_RECOMMEND_COVER } from './constants';
@@ -17,9 +16,6 @@ import {
 } from './store';
 
 const App: React.FC = () => {
-  // 状态管理
-  const [showCacheManager, setShowCacheManager] = useState<boolean>(false);
-
   // 使用Zustand状态管理
   const { setWindowSize } = useUIStore();
   const { searchTerm, searchResults, setSearchTerm, performSearch } = useSearchStore();
@@ -240,21 +236,6 @@ const App: React.FC = () => {
       </div>
 
       <Player />
-
-      {/* 缓存管理器 */}
-      <CacheManager
-        isVisible={showCacheManager}
-        onClose={() => setShowCacheManager(false)}
-      />
-
-      {/* 缓存管理按钮 */}
-      <button
-        className="cache-manager-button"
-        onClick={() => setShowCacheManager(true)}
-        title="缓存管理"
-      >
-        <i className="fas fa-database"></i>
-      </button>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import useUserStore from '../store/userStore';
 import DisclaimerModal from './DisclaimerModal';
+import SettingsModal from './SettingsModal';
 
 interface UserDropdownProps {
   className?: string;
@@ -13,6 +14,7 @@ interface UserDropdownProps {
 const UserDropdown: React.FC<UserDropdownProps> = ({ className = '' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showDisclaimerModal, setShowDisclaimerModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
 
@@ -68,8 +70,7 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ className = '' }) => {
     switch (action) {
       case 'settings':
         console.log('打开设置');
-        // TODO: 实现设置功能
-        alert('设置功能即将推出！');
+        setShowSettingsModal(true);
         break;
       case 'login':
         console.log('打开登录');
@@ -181,6 +182,12 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ className = '' }) => {
           </div>
         </div>
       )}
+
+      {/* 设置弹窗 */}
+      <SettingsModal
+        isVisible={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+      />
 
       {/* 免责声明弹窗 */}
       <DisclaimerModal
