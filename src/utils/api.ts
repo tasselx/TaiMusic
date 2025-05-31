@@ -149,13 +149,15 @@ class ApiService {
 
           // 转换数据格式
           return songList.map((item: any) => {
+            const imageUrl = item.sizable_cover ? formatCoverUrl(item.sizable_cover) : (item.album_img || item.img || DEFAULT_COVER);
+
             return {
               id: item.hash || item.audio_id || Math.random(),
               title: item.songname || item.song_name || '',
               artist: item.author_name || item.singername || '',
               album: item.album_name || item.album || '',
               duration: this.formatDuration(item.duration || item.time_length),
-              imageUrl: item.sizable_cover ? formatCoverUrl(item.sizable_cover) : (item.album_img || item.img || DEFAULT_COVER)
+              imageUrl: imageUrl
             };
           });
         }

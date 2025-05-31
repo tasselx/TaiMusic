@@ -5,7 +5,6 @@
 import React, { useState, useEffect } from 'react';
 import { getCachedImage, cacheImage } from '../utils/imageCache';
 import { DEFAULT_COVER } from '../constants';
-import httpClient from '../utils/httpClient';
 
 interface CachedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
@@ -53,18 +52,22 @@ const CachedImage: React.FC<CachedImageProps> = ({
           return;
         }
 
-        // 如果没有缓存，使用httpClient从网络加载
-        const response = await httpClient.get(src, {}, {
-          responseType: 'blob',
-          baseURL: '', // 覆盖默认的baseURL，直接使用完整URL
-          timeout: 15000 // 图片加载可能需要更长的超时时间
+        // 如果没有缓存，尝试使用原生fetch加载图片
+        // 避免httpClient的响应拦截器可能造成的问题
+        const response = await fetch(src, {
+          mode: 'cors',
+          cache: 'default'
         });
 
-        if (!response.data) {
-          throw new Error(`Failed to fetch image: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const blob = response.data;
+        const blob = await response.blob();
+
+        if (!blob || !(blob instanceof Blob)) {
+          throw new Error(`Failed to fetch image: invalid blob response`);
+        }
 
         // 缓存图片
         await cacheImage(src, blob);
@@ -76,7 +79,7 @@ const CachedImage: React.FC<CachedImageProps> = ({
           onLoad?.();
         }
       } catch (error) {
-        console.error('加载图片失败:', error);
+        console.error('CachedImage: 加载图片失败:', src, error);
 
         if (isMounted) {
           setImageSrc(fallbackSrc);

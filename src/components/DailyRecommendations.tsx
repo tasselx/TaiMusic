@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { useApiStore } from '../store';
 import { DEFAULT_COVER, DAILY_RECOMMEND_COVER } from '../constants';
-import { formatDuration, formatCoverUrl } from '../utils';
+import { formatDuration } from '../utils';
 import CachedImage from './CachedImage';
+
 
 /**
  * 每日推荐组件
@@ -41,7 +42,7 @@ const DailyRecommendations: React.FC = () => {
                 <div className="song-number">{index + 1}</div>
                 <div className="song-title-container">
                   <CachedImage
-                    src={song.sizable_cover ? formatCoverUrl(song.sizable_cover) : (song.imageUrl || DEFAULT_COVER)}
+                    src={song.imageUrl || DEFAULT_COVER}
                     className="song-image"
                     alt={song.title}
                   />
