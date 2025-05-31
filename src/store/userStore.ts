@@ -42,9 +42,9 @@ const useUserStore = create<UserState>()(
       setUser: (user) => set({ user }),
 
       // 设置登录状态
-      setLoginStatus: (status, error = null) => set({
+      setLoginStatus: (status, error) => set({
         loginStatus: status,
-        loginError: error
+        loginError: error || null
       }),
 
       // 登录

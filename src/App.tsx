@@ -6,6 +6,7 @@ import Player from './components/Player';
 import DailyRecommendations from './components/DailyRecommendations';
 import CacheManager from './components/CacheManager';
 import CachedImage from './components/CachedImage';
+import UserDropdown from './components/UserDropdown';
 import { DEFAULT_COVER, DAILY_RECOMMEND_COVER } from './constants';
 import { formatDuration, formatCoverUrl } from './utils';
 import {
@@ -127,13 +128,7 @@ const App: React.FC = () => {
           }}
           onSearch={handleSearch}
         />
-        <div
-          className="user-button"
-          onClick={(e) => e.stopPropagation()}
-          onDoubleClick={(e) => e.stopPropagation()}
-        >
-          <i className="fas fa-user"></i>
-        </div>
+        <UserDropdown />
       </header>
 
       <div className="main-content">

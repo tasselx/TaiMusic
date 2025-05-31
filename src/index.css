@@ -6,6 +6,7 @@
   --background: #121212;
   --surface: #181818;
   --surface-light: #282828;
+  --hover: #282828;
   --text: #FFFFFF;
   --text-secondary: #B3B3B3;
   --border: #333333;
@@ -37,6 +38,11 @@ button,
 .song-item,
 .logo,
 .user-button,
+.dropdown-item,
+.disclaimer-modal-title,
+.disclaimer-modal-close-btn,
+.disclaimer-modal-confirm-btn,
+.disclaimer-app-info,
 .sidebar-title,
 .section-title,
 .playlist-title,
