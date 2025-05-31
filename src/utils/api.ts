@@ -29,6 +29,9 @@ export const API_ENDPOINTS = {
   USER_DETAIL: '/user/detail',
   // 用户状态
   USER_STATUS: '/user/status',
+  // 登录相关
+  LOGIN_CELLPHONE: '/login/cellphone',
+  CAPTCHA_SENT: '/captcha/sent',
 };
 
 /**
@@ -91,8 +94,8 @@ class ApiService {
   public async checkApiStatus(): Promise<boolean> {
     try {
       const response = await get(API_ENDPOINTS.BASE);
-      // httpClient 响应拦截器已经提取了 data
-      return response && (response.code === 200 || response.status === 200);
+      // 使用 status === 1 作为成功标准
+      return response && response.status === 1;
     } catch (error) {
       console.error('API服务连接失败:', error);
       return false;
@@ -107,7 +110,7 @@ class ApiService {
     try {
       const response = await get(API_ENDPOINTS.BANNER);
 
-      if (response && response.data && response.data.banner) {
+      if (response && response.status === 1 && response.data && response.data.banner) {
         // 转换数据格式
         return response.data.banner.map((item: any) => ({
           id: item.id || Math.random(),
@@ -134,7 +137,7 @@ class ApiService {
       const response = await get(API_ENDPOINTS.DAILY_RECOMMEND);
 
       // 检查数据结构
-      if (response && response.data) {
+      if (response && response.status === 1 && response.data) {
         console.log('API返回的数据中song_list_size:', response.data.song_list_size);
 
         // 使用song_list作为歌曲列表
@@ -189,7 +192,7 @@ class ApiService {
         pagesize: pageSize
       });
 
-      if (response && response.data && response.data.info) {
+      if (response && response.status === 1 && response.data && response.data.info) {
         // 转换数据格式
         return response.data.info.map((item: any) => ({
           id: item.hash || item.audio_id || Math.random(),
@@ -216,7 +219,7 @@ class ApiService {
     try {
       const response = await get(API_ENDPOINTS.SEARCH_HOT);
 
-      if (response && response.data && response.data.info) {
+      if (response && response.status === 1 && response.data && response.data.info) {
         return response.data.info.map((item: any) => item.keyword || '');
       }
 
@@ -236,7 +239,7 @@ class ApiService {
     try {
       const response = await get(API_ENDPOINTS.USER_DETAIL, { userid: userId });
 
-      if (response && response.data) {
+      if (response && response.status === 1 && response.data) {
         return {
           id: userId,
           username: response.data.nickname || `用户${userId.substring(0, 4)}`,
@@ -275,7 +278,7 @@ class ApiService {
         }
       });
 
-      return response && (response.code === 200 || response.status === 200);
+      return response && response.status === 1;
     } catch (error) {
       console.error('检查用户状态失败:', error);
       return false;

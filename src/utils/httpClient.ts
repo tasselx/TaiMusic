@@ -25,13 +25,13 @@ httpClient.interceptors.request.use(
   config => {
     // 获取用户信息
     const userStore = useUserStore.getState();
-    const user = userStore.user;
+    const userInfo = userStore.userInfo;
 
     // 如果用户已登录，添加认证信息
-    if (user && user.token && user.id) {
+    if (userInfo && userInfo.token && userInfo.id) {
       // 构建cookie参数
-      const cookieParam = `cookie=token=${encodeURIComponent(user.token)};userid=${encodeURIComponent(user.id)}`;
-      
+      const cookieParam = `cookie=token=${encodeURIComponent(userInfo.token)};userid=${encodeURIComponent(userInfo.id)}`;
+
       // 将认证信息添加到URL参数中
       if (config.url) {
         config.url += config.url.includes('?') ? `&${cookieParam}` : `?${cookieParam}`;
@@ -90,7 +90,7 @@ httpClient.interceptors.response.use(
  * @param onError 错误回调
  * @returns Promise
  */
-export const get = async (url: string, params = {}, config = {}, onSuccess = null, onError = null) => {
+export const get = async (url: string, params = {}, config = {}, onSuccess: ((response: any) => void) | null = null, onError: ((error: any) => void) | null = null) => {
   try {
     const response = await httpClient.get(url, { params, ...config });
     if (onSuccess) onSuccess(response);
@@ -110,7 +110,7 @@ export const get = async (url: string, params = {}, config = {}, onSuccess = nul
  * @param onError 错误回调
  * @returns Promise
  */
-export const post = async (url: string, data = {}, config = {}, onSuccess = null, onError = null) => {
+export const post = async (url: string, data = {}, config = {}, onSuccess: ((response: any) => void) | null = null, onError: ((error: any) => void) | null = null) => {
   try {
     const response = await httpClient.post(url, data, config);
     if (onSuccess) onSuccess(response);

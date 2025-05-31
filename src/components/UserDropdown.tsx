@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import useUserStore from '../store/userStore';
 import DisclaimerModal from './DisclaimerModal';
 import SettingsModal from './SettingsModal';
+import LoginModal from './LoginModal';
+import { toast } from '../store/toastStore';
 
 interface UserDropdownProps {
   className?: string;
@@ -15,12 +17,13 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ className = '' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showDisclaimerModal, setShowDisclaimerModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
 
   // 获取用户状态
-  const { user, logout } = useUserStore();
-  const isLoggedIn = user?.isLoggedIn || false;
+  const { userInfo, logout } = useUserStore();
+  const isLoggedIn = userInfo?.isLoggedIn || false;
 
   // 切换下拉菜单显示状态
   const toggleDropdown = (e: React.MouseEvent) => {
@@ -74,18 +77,17 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ className = '' }) => {
         break;
       case 'login':
         console.log('打开登录');
-        // 模拟登录功能
-        handleMockLogin();
+        setShowLoginModal(true);
         break;
       case 'logout':
         console.log('用户登出');
         logout();
-        alert('已成功登出');
+        toast.success('已成功登出');
         break;
       case 'updates':
         console.log('检查更新');
         // TODO: 实现更新检查功能
-        alert('当前已是最新版本！');
+        toast.info('当前已是最新版本！');
         break;
       case 'about':
         console.log('关于应用');
@@ -96,19 +98,6 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ className = '' }) => {
     }
   };
 
-  // 模拟登录功能
-  const handleMockLogin = () => {
-    const { setUser } = useUserStore.getState();
-    setUser({
-      id: 'mock_user_123',
-      username: '测试用户',
-      avatar: 'https://ai-public.mastergo.com/ai/img_res/480bba3a0094fc71a4b8e1d43800f97f.jpg',
-      isLoggedIn: true,
-      token: 'mock_token_123'
-    });
-    alert('模拟登录成功！');
-  };
-
   return (
     <div className={`user-dropdown-container ${className}`}>
       {/* 头像按钮 */}
@@ -116,11 +105,11 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ className = '' }) => {
         ref={buttonRef}
         className={`user-button ${isOpen ? 'active' : ''}`}
         onClick={toggleDropdown}
-        title={isLoggedIn ? `${user?.username || '用户'}` : '点击查看选项'}
+        title={isLoggedIn ? `${userInfo?.username || '用户'}` : '点击查看选项'}
       >
-        {isLoggedIn && user?.avatar ? (
+        {isLoggedIn && userInfo?.avatar ? (
           <img
-            src={user.avatar}
+            src={userInfo.avatar}
             alt="用户头像"
             className="user-avatar"
           />
@@ -187,6 +176,12 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ className = '' }) => {
       <SettingsModal
         isVisible={showSettingsModal}
         onClose={() => setShowSettingsModal(false)}
+      />
+
+      {/* 登录弹窗 */}
+      <LoginModal
+        isVisible={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
       />
 
       {/* 免责声明弹窗 */}

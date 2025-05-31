@@ -772,6 +772,747 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   }
 }
 
+/* 登录弹窗样式 */
+.login-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000; /* 模态对话框层级 */
+  padding: 20px;
+  animation: modalOverlayFadeIn 0.2s ease-out;
+}
+
+.login-modal-content {
+  background-color: var(--surface);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  max-width: 480px;
+  width: 100%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  animation: modalContentSlideIn 0.3s ease-out;
+  border: 1px solid var(--border);
+  z-index: 2001; /* 确保内容容器在遮罩层之上 */
+  position: relative; /* 确保z-index生效 */
+}
+
+/* 登录弹窗头部 */
+.login-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.login-modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.login-modal-close-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background-color: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.login-modal-close-btn:hover {
+  background-color: var(--hover);
+  color: var(--text);
+}
+
+.login-modal-close-btn i {
+  font-size: 16px;
+}
+
+/* 登录说明文字 */
+.login-modal-description {
+  padding: 16px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--surface);
+}
+
+.login-modal-description p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: center;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+/* Tab标签页样式 */
+.login-modal-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--surface-light);
+}
+
+.login-tab {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  background-color: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.login-tab:hover {
+  color: var(--text);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.login-tab.active {
+  color: var(--primary);
+  background-color: var(--surface);
+}
+
+.login-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--primary);
+}
+
+/* 登录弹窗内容区域 */
+.login-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* 错误提示 */
+.login-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: rgba(229, 57, 53, 0.1);
+  border: 1px solid rgba(229, 57, 53, 0.2);
+  border-radius: 6px;
+  color: #e53935;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.login-error i {
+  font-size: 16px;
+}
+
+/* 登录表单样式 */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-form-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.login-form-input {
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--surface-light);
+  color: var(--text);
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.login-form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.1);
+}
+
+.login-form-input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* 验证码输入组 */
+.login-form-code-group {
+  display: flex;
+  gap: 12px;
+}
+
+.login-form-code-group .login-form-input {
+  flex: 1;
+}
+
+.login-form-code-btn {
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--surface-light);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 100px;
+}
+
+.login-form-code-btn:hover:not(:disabled) {
+  background-color: var(--hover);
+  border-color: var(--text-secondary);
+}
+
+.login-form-code-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 复选框样式 */
+.login-form-checkbox {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.login-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.login-checkbox-label input[type="checkbox"] {
+  display: none;
+}
+
+.login-checkbox-custom {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background-color: var(--surface-light);
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.login-checkbox-label input[type="checkbox"]:checked + .login-checkbox-custom {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.login-checkbox-label input[type="checkbox"]:checked + .login-checkbox-custom::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* 提交按钮 */
+.login-form-submit {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  background-color: var(--primary);
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.login-form-submit:hover:not(:disabled) {
+  background-color: #1ed760;
+  transform: translateY(-1px);
+}
+
+.login-form-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 二维码登录样式 */
+.login-qrcode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.login-qrcode-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background-color: var(--surface-light);
+}
+
+.login-qrcode-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.login-qrcode-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+}
+
+.login-qrcode-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.login-qrcode-refresh {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--surface-light);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.login-qrcode-refresh:hover:not(:disabled) {
+  background-color: var(--hover);
+  border-color: var(--text-secondary);
+}
+
+.login-qrcode-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-qrcode-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.login-qrcode-tips p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.login-qrcode-tips-sub {
+  font-size: 12px !important;
+  color: var(--text-secondary) !important;
+}
+
+/* 登录弹窗响应式设计 */
+@media (max-width: 768px) {
+  .login-modal-overlay {
+    padding: 16px;
+  }
+
+  .login-modal-content {
+    max-width: none;
+    max-height: 90vh;
+    border-radius: 8px;
+  }
+
+  .login-modal-header {
+    padding: 16px 20px 12px;
+  }
+
+  .login-modal-title {
+    font-size: 18px;
+  }
+
+  .login-modal-description {
+    padding: 14px 20px 12px;
+  }
+
+  .login-modal-description p {
+    font-size: 12px;
+  }
+
+  .login-modal-body {
+    padding: 20px;
+  }
+
+  .login-tab {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .login-form {
+    gap: 16px;
+  }
+
+  .login-form-code-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .login-form-code-btn {
+    min-width: auto;
+  }
+
+  .login-qrcode-container {
+    width: 160px;
+    height: 160px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-modal-overlay {
+    padding: 12px;
+  }
+
+  .login-modal-content {
+    max-height: 95vh;
+  }
+
+  .login-modal-header {
+    padding: 12px 16px 8px;
+  }
+
+  .login-modal-description {
+    padding: 12px 16px 10px;
+  }
+
+  .login-modal-description p {
+    font-size: 11px;
+  }
+
+  .login-modal-body {
+    padding: 16px;
+  }
+
+  .login-qrcode-container {
+    width: 140px;
+    height: 140px;
+  }
+}
+
+/* Toast通知样式 */
+.toast-container {
+  position: fixed;
+  z-index: 1500; /* 高于其他组件但低于模态对话框 */
+  pointer-events: none; /* 允许点击穿透容器 */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+  width: 100%;
+}
+
+/* Toast容器位置 */
+.toast-container-top-right {
+  top: 20px;
+  right: 20px;
+}
+
+.toast-container-top-left {
+  top: 20px;
+  left: 20px;
+}
+
+.toast-container-bottom-right {
+  bottom: 20px;
+  right: 20px;
+  flex-direction: column-reverse;
+}
+
+.toast-container-bottom-left {
+  bottom: 20px;
+  left: 20px;
+  flex-direction: column-reverse;
+}
+
+.toast-container-top-center {
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.toast-container-bottom-center {
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column-reverse;
+}
+
+/* Toast项样式 */
+.toast-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  pointer-events: auto; /* 恢复点击事件 */
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all 0.3s ease;
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+.toast-item.toast-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.toast-item.toast-leaving {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+/* 左侧位置的Toast动画 */
+.toast-container-top-left .toast-item,
+.toast-container-bottom-left .toast-item {
+  transform: translateX(-100%);
+}
+
+.toast-container-top-left .toast-item.toast-visible,
+.toast-container-bottom-left .toast-item.toast-visible {
+  transform: translateX(0);
+}
+
+.toast-container-top-left .toast-item.toast-leaving,
+.toast-container-bottom-left .toast-item.toast-leaving {
+  transform: translateX(-100%);
+}
+
+/* 中心位置的Toast动画 */
+.toast-container-top-center .toast-item,
+.toast-container-bottom-center .toast-item {
+  transform: translateY(-20px);
+}
+
+.toast-container-top-center .toast-item.toast-visible,
+.toast-container-bottom-center .toast-item.toast-visible {
+  transform: translateY(0);
+}
+
+.toast-container-top-center .toast-item.toast-leaving,
+.toast-container-bottom-center .toast-item.toast-leaving {
+  transform: translateY(-20px);
+}
+
+/* Toast图标样式 */
+.toast-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  margin-top: 2px;
+}
+
+/* Toast内容样式 */
+.toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.toast-message {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+/* Toast关闭按钮 */
+.toast-close-btn {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  margin-top: 2px;
+}
+
+.toast-close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+
+/* Toast类型样式 */
+.toast-success {
+  border-left: 4px solid #10b981;
+}
+
+.toast-success .toast-icon {
+  color: #10b981;
+}
+
+.toast-error {
+  border-left: 4px solid #ef4444;
+}
+
+.toast-error .toast-icon {
+  color: #ef4444;
+}
+
+.toast-warning {
+  border-left: 4px solid #f59e0b;
+}
+
+.toast-warning .toast-icon {
+  color: #f59e0b;
+}
+
+.toast-info {
+  border-left: 4px solid #3b82f6;
+}
+
+.toast-info .toast-icon {
+  color: #3b82f6;
+}
+
+/* Toast响应式设计 */
+@media (max-width: 768px) {
+  .toast-container {
+    max-width: calc(100vw - 32px);
+    margin: 0 16px;
+  }
+
+  .toast-container-top-right,
+  .toast-container-bottom-right {
+    right: 16px;
+  }
+
+  .toast-container-top-left,
+  .toast-container-bottom-left {
+    left: 16px;
+  }
+
+  .toast-container-top-center,
+  .toast-container-bottom-center {
+    left: 16px;
+    right: 16px;
+    transform: none;
+    max-width: none;
+  }
+
+  .toast-item {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .toast-title {
+    font-size: 13px;
+  }
+
+  .toast-message {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .toast-container {
+    gap: 8px;
+  }
+
+  .toast-container-top-right,
+  .toast-container-bottom-right,
+  .toast-container-top-left,
+  .toast-container-bottom-left,
+  .toast-container-top-center,
+  .toast-container-bottom-center {
+    top: 12px;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    margin: 0;
+  }
+
+  .toast-container-bottom-right,
+  .toast-container-bottom-left,
+  .toast-container-bottom-center {
+    top: auto;
+    bottom: 12px;
+  }
+
+  .toast-item {
+    padding: 10px;
+    gap: 8px;
+  }
+}
+
 /* 允许logo区域拖动，以便可以移动窗口 */
 .logo {
   -webkit-app-region: drag;
@@ -1682,8 +2423,8 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
 /* 歌曲列表 */
 .song-list {
   background-color: rgba(40, 40, 40, 0.3);
-  backdrop-filter: blur(10px);
   border-radius: 8px;
+  overflow: hidden;
 }
 
 /* 搜索结果样式 */
@@ -1702,33 +2443,34 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
 .song-list-header {
   display: flex;
   align-items: center;
-  padding: 12px 24px;
-  font-size: 14px;
+  padding: 12px 20px;
+  font-size: 12px;
   color: var(--text-secondary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .song-list-body {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
   max-height: 500px;
   overflow-y: auto;
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
 }
 
 .song-item {
   display: flex;
   align-items: center;
-  padding: 12px 24px;
-  /* 移除过渡效果 */
-  border-radius: 8px;
+  padding: 12px 20px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
 }
 
 .song-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .song-number {
   width: 32px;
   color: var(--text-secondary);
+  font-size: 14px;
 }
 
 .song-title-container {
@@ -1736,34 +2478,40 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
 }
 
 .song-image {
   width: 40px;
   height: 40px;
-  border-radius: 8px;
+  border-radius: 6px;
+  object-fit: cover;
 }
 
 .song-title {
-  /* 无需过渡效果 */
-  color: inherit;
-}
-
-.song-title:hover {
-  color: var(--primary);
+  color: var(--text);
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
 }
 
 .song-artist, .song-album {
-  width: 160px;
+  width: 130px;
   color: var(--text-secondary);
+  font-size: 13px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .song-duration {
-  width: 80px;
+  width: 70px;
   color: var(--text-secondary);
+  font-size: 13px;
+  text-align: right;
 }
 
 @media (max-width: 1024px) {
@@ -1894,17 +2642,19 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   position: fixed;
   top: calc(64px + 15px + 15px); /* 头部高度 + 头部偏移(5px+10px) + 间距 */
   right: 0;
-  bottom: calc(80px + 20px); /* 播放器高度 + 增加的间距 */
-  width: 380px;
+  bottom: calc(80px + 16px); /* 播放器高度 + 16px间距 */
+  width: 450px;
   background-color: var(--surface);
   border-left: 1px solid var(--border);
-  border-radius: 8px 0 0 8px; /* 添加左侧圆角 */
+  border-radius: 8px 0 0 8px;
   padding: 20px;
-  z-index: 1000; /* 提高层级，确保在播放器之上 */
+  z-index: 1000;
   overflow-y: auto;
-  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
   animation: slideInRight 0.3s ease-out;
 }
+
+
 
 .recently-played-container.closing {
   animation: slideOutRight 0.3s ease-out forwards;
@@ -1940,7 +2690,7 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999; /* 提高层级，确保在播放器之上，但低于抽屉容器 */
+  z-index: 999;
   animation: fadeIn 0.3s ease-out;
 }
 
@@ -1975,6 +2725,8 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   border-bottom: 1px solid var(--border);
 }
 
+
+
 .recently-played-actions {
   display: flex;
   gap: 12px;
@@ -1991,6 +2743,7 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   display: flex;
   align-items: center;
   gap: 8px;
+  transition: all 0.2s ease;
 }
 
 .recently-played-action-btn:hover {
@@ -2009,7 +2762,7 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   justify-content: center;
   cursor: pointer;
   font-size: 16px;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .recently-played-close-btn:hover {
@@ -2032,6 +2785,20 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
 @media (max-width: 768px) {
   .recently-played-container {
     width: 100%;
+    border-radius: 0;
+    padding: 16px;
+  }
+
+  .song-artist, .song-album {
+    width: 80px;
+  }
+
+  .song-duration {
+    width: 50px;
+  }
+
+  .song-list-header, .song-item {
+    padding: 12px 16px;
   }
 }
 

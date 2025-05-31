@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { User, LoadingState } from './types';
+import { UserInfo, LoadingState } from './types';
 import { apiService } from '../utils';
 
 /**
@@ -8,14 +8,14 @@ import { apiService } from '../utils';
  */
 interface UserState {
   // 用户信息
-  user: User | null;
+  userInfo: UserInfo | null;
   // 登录状态
   loginStatus: LoadingState;
   // 登录错误信息
   loginError: string | null;
 
   // 设置用户信息
-  setUser: (user: User | null) => void;
+  setUserInfo: (userInfo: UserInfo | null) => void;
   // 设置登录状态
   setLoginStatus: (status: LoadingState, error?: string) => void;
   // 登录
@@ -34,12 +34,12 @@ const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
       // 初始状态
-      user: null,
+      userInfo: null,
       loginStatus: 'idle',
       loginError: null,
 
       // 设置用户信息
-      setUser: (user) => set({ user }),
+      setUserInfo: (userInfo) => set({ userInfo }),
 
       // 设置登录状态
       setLoginStatus: (status, error) => set({
@@ -58,7 +58,7 @@ const useUserStore = create<UserState>()(
 
           // 登录成功，设置用户信息
           set({
-            user: {
+            userInfo: {
               id: userId,
               username: userInfo.username,
               avatar: userInfo.avatar,
@@ -79,7 +79,7 @@ const useUserStore = create<UserState>()(
       // 登出
       logout: () => {
         set({
-          user: null,
+          userInfo: null,
           loginStatus: 'idle',
           loginError: null
         });
@@ -87,15 +87,15 @@ const useUserStore = create<UserState>()(
 
       // 检查登录状态
       checkLoginStatus: async () => {
-        const { user } = get();
+        const { userInfo } = get();
 
-        if (!user || !user.token) {
+        if (!userInfo || !userInfo.token) {
           return false;
         }
 
         try {
           // 使用API服务验证token是否有效
-          const isValid = await apiService.checkUserStatus(user.token);
+          const isValid = await apiService.checkUserStatus(userInfo.token);
 
           if (isValid) {
             return true;
@@ -106,13 +106,13 @@ const useUserStore = create<UserState>()(
           return false;
         } catch (error) {
           console.error('验证登录状态失败:', error);
-          return !!user.isLoggedIn; // 如果请求失败，返回当前登录状态
+          return !!userInfo.isLoggedIn; // 如果请求失败，返回当前登录状态
         }
       }
     }),
     {
       name: 'tai-music-user-storage', // 存储的键名
-      partialize: (state) => ({ user: state.user }), // 只持久化user字段
+      partialize: (state) => ({ userInfo: state.userInfo }), // 只持久化userInfo字段
     }
   )
 );

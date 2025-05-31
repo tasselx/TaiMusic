@@ -50,11 +50,36 @@ export interface Banner {
   link: string;
 }
 
-// 用户类型
-export interface User {
+// 用户类型 - 根据实际API响应结构定义
+export interface UserInfo {
   id: string;
   username: string;
   avatar: string;
   isLoggedIn: boolean;
   token?: string;
+  vip_type?: number;    // VIP类型 (0:普通 1:VIP)
+  vip_token?: string;   // VIP令牌
+}
+
+// Toast通知类型
+export type ToastType = 'success' | 'error' | 'warning' | 'info';
+
+export type ToastPosition = 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center';
+
+export interface ToastItem {
+  id: string;
+  type: ToastType;
+  title?: string;
+  message: string;
+  duration?: number; // 持续时间，毫秒，0表示不自动关闭
+  closable?: boolean; // 是否显示关闭按钮
+  createdAt: number;
+}
+
+export interface ToastOptions {
+  type?: ToastType;
+  title?: string;
+  duration?: number;
+  closable?: boolean;
+  position?: ToastPosition;
 }

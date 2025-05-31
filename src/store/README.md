@@ -97,13 +97,13 @@ const MyComponent = () => {
 import { useUserStore } from './store';
 
 const MyComponent = () => {
-  const { user, logout } = useUserStore();
-  
+  const { userInfo, logout } = useUserStore();
+
   return (
     <>
-      {user ? (
+      {userInfo ? (
         <>
-          <div>欢迎, {user.username}</div>
+          <div>欢迎, {userInfo.username}</div>
           <button onClick={logout}>退出登录</button>
         </>
       ) : (

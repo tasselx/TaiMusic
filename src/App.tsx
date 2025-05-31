@@ -6,6 +6,9 @@ import Player from './components/Player';
 import DailyRecommendations from './components/DailyRecommendations';
 import CachedImage from './components/CachedImage';
 import UserDropdown from './components/UserDropdown';
+import ToastContainer from './components/Toast';
+
+import { toast } from './store/toastStore';
 import { DEFAULT_COVER, DAILY_RECOMMEND_COVER } from './constants';
 import { formatDuration, formatCoverUrl } from './utils';
 import {
@@ -106,6 +109,37 @@ const App: React.FC = () => {
       document.activeElement.blur();
     }
   };
+
+  // Toast测试函数（开发环境使用）
+  const testToast = () => {
+    if (process.env.NODE_ENV === 'development') {
+      toast.success('这是一个成功通知！', { title: '成功' });
+      setTimeout(() => toast.error('这是一个错误通知！'), 1000);
+      setTimeout(() => toast.warning('这是一个警告通知！'), 2000);
+      setTimeout(() => toast.info('这是一个信息通知！'), 3000);
+    }
+  };
+
+  // 在开发环境下，将测试函数暴露到全局
+  useEffect(() => {
+    console.log('🚀 App组件已加载');
+    console.log('当前环境:', process.env.NODE_ENV);
+    console.log('Vite模式:', import.meta.env.MODE);
+
+    if (process.env.NODE_ENV === 'development') {
+      (window as any).testToast = testToast;
+      console.log('Toast测试函数已暴露到全局: window.testToast()');
+
+      // 添加一个测试console.log的函数
+      (window as any).testConsole = () => {
+        console.log('✅ Console.log 正常工作!');
+        console.warn('⚠️ Console.warn 正常工作!');
+        console.error('❌ Console.error 正常工作!');
+        console.info('ℹ️ Console.info 正常工作!');
+      };
+      console.log('Console测试函数已暴露到全局: window.testConsole()');
+    }
+  }, []);
 
   return (
     <div className="app-container">
@@ -236,6 +270,9 @@ const App: React.FC = () => {
       </div>
 
       <Player />
+
+      {/* Toast通知容器 */}
+      <ToastContainer />
     </div>
   );
 }
