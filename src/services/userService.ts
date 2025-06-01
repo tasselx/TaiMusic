@@ -2,21 +2,8 @@
  * 用户服务
  * 封装与用户相关的API请求
  */
-import { get, post } from '../utils/httpClient';
+import { get } from '../utils/httpClient';
 import { API_ENDPOINTS } from '../utils/api';
-
-/**
- * 用户信息接口 - 根据实际API响应结构定义
- */
-export interface UserInfo {
-  id: string;
-  username: string;
-  nickname?: string;
-  avatar: string;
-  token?: string;
-  vip_type?: number;    // VIP类型 (0:普通 1:VIP)
-  vip_token?: string;   // VIP令牌
-}
 
 /**
  * 登录参数接口
@@ -39,7 +26,7 @@ export interface PhoneLoginParams {
  */
 export interface LoginResponse {
   token: string;
-  userId: number;       // 实际返回的是数字类型
+  userId: number;       // 实际返回的是数字类型，但API可能返回userid字段
   nickname?: string;
   avatar?: string;
   vip_type?: number;    // VIP类型
@@ -47,27 +34,76 @@ export interface LoginResponse {
 }
 
 /**
- * 用户登录
+ * 二维码登录相关接口
+ */
+export interface QRCodeKeyResponse {
+  qrcode: string;       // 二维码key
+}
+
+export interface QRCodeCreateResponse {
+  base64: string;       // 二维码图片base64
+}
+
+export interface QRCodeCheckResponse {
+  status: number;       // 二维码状态：0-过期，2-已扫码待确认，4-登录成功
+  nickname?: string;    // 用户昵称（状态2时返回）
+  token?: string;       // 登录token（状态4时返回）
+  userid?: number;      // 用户ID（状态4时返回）
+  pic?: string;         // 用户头像（状态4时返回）
+  vip_type?: number;    // VIP类型（状态4时返回）
+  vip_token?: string;   // VIP令牌（状态4时返回）
+}
+
+/**
+ * 账号密码登录 - 完全按照Vue代码实现
  * @param params 登录参数
  * @returns Promise<LoginResponse>
  */
 export const login = async (params: LoginParams): Promise<LoginResponse> => {
   try {
-    const response = await post('/login', params);
+    console.log('账号登录请求:', { username: params.username, password: '***' });
 
-    if (response && response.data) {
+    // 使用GET请求，参数放在URL中，与Vue代码保持一致
+    // 对密码进行URL编码处理
+    const encodedPassword = encodeURIComponent(params.password);
+    const response = await get(`${API_ENDPOINTS.LOGIN}?username=${params.username}&password=${encodedPassword}`);
+
+    console.log('账号登录响应:', response);
+
+    // 检查响应状态，status === 1 表示登录成功
+    if (response && response.status === 1) {
       return {
         token: response.data.token || '',
-        userId: response.data.userId || response.data.id || '',
+        userId: response.data.userid || response.data.userId || response.data.id || 0,
         nickname: response.data.nickname || response.data.username || '',
-        avatar: response.data.avatar || ''
+        avatar: response.data.pic || response.data.avatar || '',
+        vip_type: response.data.vip_type || 0,
+        vip_token: response.data.vip_token || ''
       };
     }
 
-    throw new Error('登录失败，请检查用户名和密码');
-  } catch (error) {
-    console.error('登录失败:', error);
-    throw error;
+    // 如果登录失败，抛出错误信息
+    const errorMessage = (response as any)?.message || (response as any)?.msg || '登录失败，请检查用户名和密码';
+    throw new Error(errorMessage);
+  } catch (error: any) {
+    console.error('账号登录失败:', error);
+
+    // 提取详细的错误信息
+    if (error.response) {
+      const responseData = error.response.data;
+      const errorMessage = responseData?.message || responseData?.msg || responseData?.error || '登录失败，请检查用户名和密码';
+
+      console.error('登录服务器错误响应:', {
+        status: error.response.status,
+        data: responseData
+      });
+
+      throw new Error(errorMessage);
+    } else if (error.request) {
+      throw new Error('网络连接失败，请检查网络连接');
+    } else {
+      throw error;
+    }
   }
 };
 
@@ -192,88 +228,91 @@ export const sendVerificationCode = async (phone: string): Promise<{ success: bo
 };
 
 /**
- * 验证验证码
- * @param phone 手机号
- * @param code 验证码
- * @returns Promise<boolean>
+ * 获取二维码key
+ * @returns Promise<string>
  */
-export const verifyCode = async (phone: string, code: string): Promise<boolean> => {
+export const getQRCodeKey = async (): Promise<string> => {
   try {
-    const response = await post('/captcha/verify', { phone, captcha: code });
+    console.log('📝 调用获取二维码key API...');
+    // 获取二维码 key - 完全按照Vue代码实现
+    const keyResponse: any = await get(API_ENDPOINTS.LOGIN_QR_KEY);
+    console.log('📝 获取二维码key响应:', keyResponse);
 
-    return response && response.status === 1;
-  } catch (error) {
-    console.error('验证验证码失败:', error);
-    return false;
+    // httpClient已经返回了response.data，所以直接访问status和data
+    if (keyResponse.status === 1) {
+      const qrKey = keyResponse.data.qrcode;
+      console.log('✅ 获取二维码key成功:', qrKey);
+      return qrKey;
+    } else {
+      console.error('❌ 获取二维码key失败，状态码:', keyResponse.status);
+      throw new Error('二维码key生成失败');
+    }
+  } catch (error: any) {
+    console.error('❌ 获取二维码key失败:', error);
+    throw new Error(error?.message || '二维码key生成失败');
   }
 };
 
 /**
- * 获取用户详情
- * @param userId 用户ID
- * @returns Promise<UserInfo>
+ * 创建二维码
+ * @param key 二维码key
+ * @returns Promise<string> 返回二维码图片的base64字符串
  */
-export const getUserDetail = async (userId: string): Promise<UserInfo> => {
+export const createQRCode = async (key: string): Promise<string> => {
   try {
-    const response = await get('/user/detail', { userid: userId });
+    console.log('🎨 调用创建二维码 API，key:', key);
+    // 使用 key 创建二维码 - 完全按照Vue代码实现
+    const qrResponse: any = await get(`${API_ENDPOINTS.LOGIN_QR_CREATE}?key=${key}&qrimg=true`);
+    console.log('🎨 创建二维码响应:', qrResponse);
 
-    if (response && response.data) {
-      return {
-        id: userId,
-        username: response.data.nickname || `用户${userId.substring(0, 4)}`,
+    // httpClient已经返回了response.data，所以直接访问code和data
+    if (qrResponse.code === 200) {
+      const base64Image = qrResponse.data.base64;
+      console.log('✅ 创建二维码成功，base64长度:', base64Image?.length);
+      return base64Image;
+    } else {
+      console.error('❌ 创建二维码失败，状态码:', qrResponse.code);
+      throw new Error('获取二维码失败');
+    }
+  } catch (error: any) {
+    console.error('❌ 创建二维码失败:', error);
+    throw new Error(error?.message || '二维码生成失败');
+  }
+};
+
+/**
+ * 检查二维码扫描状态
+ * @param key 二维码key
+ * @returns Promise<QRCodeCheckResponse>
+ */
+export const checkQRCodeStatus = async (key: string): Promise<QRCodeCheckResponse> => {
+  try {
+    console.log('🔍 调用检查二维码状态 API，key:', key);
+    // 添加时间戳防止缓存，移除Cache-Control请求头以避免CORS问题
+    const response: any = await get(`${API_ENDPOINTS.LOGIN_QR_CHECK}?key=${key}&timestamp=${Date.now()}`);
+    console.log('🔍 检查二维码状态响应:', response);
+
+    // 检查响应状态，status === 1 表示请求成功 - 完全按照Vue代码实现
+    if (response.status === 1) {
+      const statusData = {
+        status: response.data.status,
         nickname: response.data.nickname,
-        avatar: response.data.avatar || 'https://ai-public.mastergo.com/ai/img_res/480bba3a0094fc71a4b8e1d43800f97f.jpg',
+        token: response.data.token,
+        userid: response.data.userid,
+        pic: response.data.pic,
+        vip_type: response.data.vip_type,
+        vip_token: response.data.vip_token
       };
+      console.log('✅ 检查二维码状态成功:', statusData);
+      return statusData;
     }
 
-    // 如果没有获取到用户信息，使用默认值
-    return {
-      id: userId,
-      username: `用户${userId.substring(0, 4)}`,
-      avatar: 'https://ai-public.mastergo.com/ai/img_res/480bba3a0094fc71a4b8e1d43800f97f.jpg',
-    };
-  } catch (error) {
-    console.error('获取用户详情失败:', error);
-    // 返回默认用户信息
-    return {
-      id: userId,
-      username: `用户${userId.substring(0, 4)}`,
-      avatar: 'https://ai-public.mastergo.com/ai/img_res/480bba3a0094fc71a4b8e1d43800f97f.jpg',
-    };
+    console.error('❌ 检查二维码状态失败，响应状态:', response.status);
+    throw new Error('检查二维码状态失败');
+  } catch (error: any) {
+    console.error('❌ 检查二维码状态失败:', error);
+    throw new Error(error?.message || '检查二维码状态失败，请稍后重试');
   }
 };
 
-/**
- * 检查用户登录状态
- * @param token 用户令牌
- * @returns Promise<boolean>
- */
-export const checkUserStatus = async (token: string): Promise<boolean> => {
-  try {
-    const response = await get('/user/status', {}, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
 
-    return response && response.status === 1;
-  } catch (error) {
-    console.error('检查用户状态失败:', error);
-    return false;
-  }
-};
-
-/**
- * 退出登录
- * @returns Promise<boolean>
- */
-export const logout = async (): Promise<boolean> => {
-  try {
-    const response = await post('/logout');
-
-    return response && response.status === 1;
-  } catch (error) {
-    console.error('退出登录失败:', error);
-    return false;
-  }
-};

@@ -1246,16 +1246,17 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   }
 }
 
-/* Toast通知样式 */
+/* Toast通知样式 - 简洁顶部文字形式 */
 .toast-container {
   position: fixed;
-  z-index: 1500; /* 高于其他组件但低于模态对话框 */
+  z-index: 3000; /* 最高层级，显示在所有元素之上 */
   pointer-events: none; /* 允许点击穿透容器 */
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-width: 400px;
-  width: 100%;
+  gap: 8px;
+  max-width: 600px;
+  width: auto;
+  min-width: 200px;
 }
 
 /* Toast容器位置 */
@@ -1282,9 +1283,10 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
 }
 
 .toast-container-top-center {
-  top: 20px;
+  top: 16px;
   left: 50%;
   transform: translateX(-50%);
+  text-align: center;
 }
 
 .toast-container-bottom-center {
@@ -1294,54 +1296,58 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   flex-direction: column-reverse;
 }
 
-/* Toast项样式 */
+/* Toast项样式 - 简洁文字形式 */
 .toast-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: rgba(24, 24, 24, 0.9); /* 半透明深色背景 */
+  border-radius: 20px;
   pointer-events: auto; /* 恢复点击事件 */
   opacity: 0;
-  transform: translateX(100%);
+  transform: translateY(-10px);
   transition: all 0.3s ease;
   max-width: 100%;
   word-wrap: break-word;
+  backdrop-filter: blur(8px); /* 背景模糊效果 */
+  border: 1px solid rgba(255, 255, 255, 0.1); /* 微妙边框 */
 }
 
 .toast-item.toast-visible {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateY(0);
 }
 
 .toast-item.toast-leaving {
   opacity: 0;
-  transform: translateX(100%);
+  transform: translateY(-10px);
 }
 
-/* 左侧位置的Toast动画 */
+/* 其他位置的Toast动画（保留兼容性） */
 .toast-container-top-left .toast-item,
-.toast-container-bottom-left .toast-item {
+.toast-container-bottom-left .toast-item,
+.toast-container-top-right .toast-item,
+.toast-container-bottom-right .toast-item {
   transform: translateX(-100%);
 }
 
 .toast-container-top-left .toast-item.toast-visible,
-.toast-container-bottom-left .toast-item.toast-visible {
+.toast-container-bottom-left .toast-item.toast-visible,
+.toast-container-top-right .toast-item.toast-visible,
+.toast-container-bottom-right .toast-item.toast-visible {
   transform: translateX(0);
 }
 
 .toast-container-top-left .toast-item.toast-leaving,
-.toast-container-bottom-left .toast-item.toast-leaving {
+.toast-container-bottom-left .toast-item.toast-leaving,
+.toast-container-top-right .toast-item.toast-leaving,
+.toast-container-bottom-right .toast-item.toast-leaving {
   transform: translateX(-100%);
 }
 
-/* 中心位置的Toast动画 */
+/* 中心位置的Toast动画 - 保持一致的动画效果 */
 .toast-container-top-center .toast-item,
 .toast-container-bottom-center .toast-item {
-  transform: translateY(-20px);
+  transform: translateY(-10px);
 }
 
 .toast-container-top-center .toast-item.toast-visible,
@@ -1351,96 +1357,37 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
 
 .toast-container-top-center .toast-item.toast-leaving,
 .toast-container-bottom-center .toast-item.toast-leaving {
-  transform: translateY(-20px);
+  transform: translateY(-10px);
 }
 
-/* Toast图标样式 */
-.toast-icon {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  margin-top: 2px;
-}
-
-/* Toast内容样式 */
-.toast-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.toast-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 4px;
-  line-height: 1.4;
-}
-
-.toast-message {
+/* Toast文字样式 - 简洁设计 */
+.toast-text {
   font-size: 13px;
   color: var(--text);
   line-height: 1.4;
   word-break: break-word;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 500px;
 }
 
-/* Toast关闭按钮 */
-.toast-close-btn {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  transition: all 0.2s ease;
-  margin-top: 2px;
-}
-
-.toast-close-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: var(--text);
-}
-
-/* Toast类型样式 */
-.toast-success {
-  border-left: 4px solid #10b981;
-}
-
-.toast-success .toast-icon {
+/* Toast类型特定样式 - 简化为文字颜色 */
+.toast-success .toast-text {
   color: #10b981;
 }
 
-.toast-error {
-  border-left: 4px solid #ef4444;
-}
-
-.toast-error .toast-icon {
+.toast-error .toast-text {
   color: #ef4444;
 }
 
-.toast-warning {
-  border-left: 4px solid #f59e0b;
-}
-
-.toast-warning .toast-icon {
+.toast-warning .toast-text {
   color: #f59e0b;
 }
 
-.toast-info {
-  border-left: 4px solid #3b82f6;
-}
-
-.toast-info .toast-icon {
-  color: #3b82f6;
+.toast-info .toast-text {
+  color: var(--text);
 }
 
 /* Toast响应式设计 */
@@ -1448,16 +1395,6 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   .toast-container {
     max-width: calc(100vw - 32px);
     margin: 0 16px;
-  }
-
-  .toast-container-top-right,
-  .toast-container-bottom-right {
-    right: 16px;
-  }
-
-  .toast-container-top-left,
-  .toast-container-bottom-left {
-    left: 16px;
   }
 
   .toast-container-top-center,
@@ -1469,47 +1406,43 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   }
 
   .toast-item {
-    padding: 12px;
-    gap: 10px;
+    padding: 6px 12px;
   }
 
-  .toast-title {
-    font-size: 13px;
-  }
-
-  .toast-message {
+  .toast-text {
     font-size: 12px;
+    max-width: calc(100vw - 64px);
   }
 }
 
 @media (max-width: 480px) {
   .toast-container {
-    gap: 8px;
+    gap: 6px;
   }
 
-  .toast-container-top-right,
-  .toast-container-bottom-right,
-  .toast-container-top-left,
-  .toast-container-bottom-left,
-  .toast-container-top-center,
-  .toast-container-bottom-center {
+  .toast-container-top-center {
     top: 12px;
+    left: 12px;
+    right: 12px;
+    margin: 0;
+    transform: none;
+  }
+
+  .toast-container-bottom-center {
     bottom: 12px;
     left: 12px;
     right: 12px;
     margin: 0;
-  }
-
-  .toast-container-bottom-right,
-  .toast-container-bottom-left,
-  .toast-container-bottom-center {
-    top: auto;
-    bottom: 12px;
+    transform: none;
   }
 
   .toast-item {
-    padding: 10px;
-    gap: 8px;
+    padding: 6px 10px;
+  }
+
+  .toast-text {
+    font-size: 11px;
+    max-width: calc(100vw - 44px);
   }
 }
 
@@ -1913,6 +1846,11 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   transition: all 0.2s ease;
 }
 
+/* 修正播放图标的视觉居中 - 参考底部播放器的实现 */
+.daily-recommendations-item-play-btn .fa-play {
+  margin-left: 3px;
+}
+
 .daily-recommendations-item:hover .daily-recommendations-item-play-btn {
   transform: scale(1);
 }
@@ -2133,6 +2071,11 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   transform: scale(0.9);
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(29, 185, 84, 0.3);
+}
+
+/* 修正空状态播放图标的视觉居中 - 参考底部播放器的实现 */
+.daily-recommendations-play-btn .fa-play {
+  margin-left: 3px;
 }
 
 .daily-recommendations-card:hover .daily-recommendations-play-btn {
@@ -2943,6 +2886,241 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   font-size: 12px;
   margin-left: 12px;
   flex-shrink: 0;
+}
+
+.song-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: 12px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.playlist-song-item:hover .song-actions {
+  opacity: 1;
+}
+
+.song-action-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-size: 12px;
+}
+
+.song-action-btn:hover {
+  color: var(--text);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.song-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 当前播放歌曲样式 */
+.playlist-song-item.current-playing {
+  background-color: rgba(var(--primary-rgb), 0.1);
+  border-left: 3px solid var(--primary);
+}
+
+.playlist-song-item.current-playing .playlist-song-title {
+  color: var(--primary);
+}
+
+/* 播放按钮加载状态 */
+.play-button.loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.play-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 音频播放器演示组件样式 */
+.audio-player-demo {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.demo-section {
+  background-color: var(--surface);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.demo-title {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.demo-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.demo-btn {
+  background-color: var(--surface-secondary);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.demo-btn.primary {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.demo-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.demo-status {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.status-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.status-label {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.status-value {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.demo-cache-stats {
+  margin-bottom: 20px;
+}
+
+.demo-cache-stats h4 {
+  color: var(--text);
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.cache-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.cache-stat-item {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.cache-stat-label {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.cache-stat-value {
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.demo-songs h4 {
+  color: var(--text);
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.demo-song-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.demo-song-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.demo-song-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.demo-song-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.demo-song-title {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.demo-song-artist {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.demo-song-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.demo-song-btn {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-song-btn:hover {
+  color: var(--text);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* 播放列表空状态 */

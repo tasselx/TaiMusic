@@ -21,52 +21,42 @@ const ToastItemComponent: React.FC<ToastItemProps> = ({ toast, onClose }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleClose = () => {
-    setIsLeaving(true);
-    setTimeout(() => {
-      onClose(toast.id);
-    }, 300); // 等待退出动画完成
-  };
+  useEffect(() => {
+    // 自动关闭（如果设置了duration）
+    if (toast.duration && toast.duration > 0) {
+      const timer = setTimeout(() => {
+        setIsLeaving(true);
+        setTimeout(() => {
+          onClose(toast.id);
+        }, 300); // 等待退出动画完成
+      }, toast.duration);
 
-  // 获取Toast类型对应的图标
-  const getIcon = () => {
+      return () => clearTimeout(timer);
+    }
+  }, [toast.duration, toast.id, onClose]);
+
+  // 简洁的文字显示，根据类型添加前缀符号
+  const getTypePrefix = () => {
     switch (toast.type) {
       case 'success':
-        return <i className="fas fa-check-circle"></i>;
+        return '✓ ';
       case 'error':
-        return <i className="fas fa-exclamation-circle"></i>;
+        return '✗ ';
       case 'warning':
-        return <i className="fas fa-exclamation-triangle"></i>;
+        return '⚠ ';
       case 'info':
       default:
-        return <i className="fas fa-info-circle"></i>;
+        return '';
     }
   };
 
   return (
-    <div 
+    <div
       className={`toast-item toast-${toast.type} ${isVisible ? 'toast-visible' : ''} ${isLeaving ? 'toast-leaving' : ''}`}
     >
-      <div className="toast-icon">
-        {getIcon()}
-      </div>
-      
-      <div className="toast-content">
-        {toast.title && (
-          <div className="toast-title">{toast.title}</div>
-        )}
-        <div className="toast-message">{toast.message}</div>
-      </div>
-      
-      {toast.closable && (
-        <button 
-          className="toast-close-btn"
-          onClick={handleClose}
-          aria-label="关闭通知"
-        >
-          <i className="fas fa-times"></i>
-        </button>
-      )}
+      <span className="toast-text">
+        {getTypePrefix()}{toast.message}
+      </span>
     </div>
   );
 };
@@ -78,8 +68,8 @@ interface ToastContainerProps {
   position?: ToastPosition;
 }
 
-const ToastContainer: React.FC<ToastContainerProps> = ({ 
-  position = 'top-right' 
+const ToastContainer: React.FC<ToastContainerProps> = ({
+  position = 'top-center'
 }) => {
   const { toasts, hideToast } = useToastStore();
 

@@ -37,7 +37,7 @@ const generateId = (): string => {
 const useToastStore = create<ToastState>((set, get) => ({
   // 初始状态
   toasts: [],
-  defaultPosition: 'top-right',
+  defaultPosition: 'top-center',
   maxToasts: 5,
 
   // 显示Toast

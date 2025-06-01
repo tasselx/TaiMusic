@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import useUserStore from '../store/userStore';
 import { toast } from '../store/toastStore';
-import { sendVerificationCode, phoneLogin } from '../services/userService';
+import { sendVerificationCode, phoneLogin, login, getQRCodeKey, createQRCode, checkQRCodeStatus } from '../services/userService';
 
 interface LoginModalProps {
   isVisible: boolean;
@@ -39,12 +39,17 @@ const LoginModal: React.FC<LoginModalProps> = ({ isVisible, onClose }) => {
 
   const [qrcodeForm, setQrcodeForm] = useState({
     qrCodeUrl: 'https://ai-public.mastergo.com/ai/img_res/d182eccb133f8f85f65ac0b0c56773fb.jpg', // 默认二维码
-    isRefreshing: false
+    qrKey: '',              // 二维码key
+    isRefreshing: false,
+    tips: '请使用手机扫描二维码登录'  // 提示信息
   });
 
   // 加载状态和错误信息
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // 二维码轮询定时器
+  const qrCheckIntervalRef = useRef<number | null>(null);
 
   // 获取用户状态管理
   const { setUserInfo, setLoginStatus } = useUserStore();
@@ -66,14 +71,19 @@ const LoginModal: React.FC<LoginModalProps> = ({ isVisible, onClose }) => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
+      // 清理二维码轮询定时器
+      if (qrCheckIntervalRef.current) {
+        clearInterval(qrCheckIntervalRef.current);
+        qrCheckIntervalRef.current = null;
+      }
     };
   }, [isVisible, onClose]);
 
   // 验证码倒计时
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: number;
     if (phoneForm.countdown > 0) {
-      timer = setTimeout(() => {
+      timer = window.setTimeout(() => {
         setPhoneForm(prev => ({ ...prev, countdown: prev.countdown - 1 }));
       }, 1000);
     }
@@ -91,8 +101,20 @@ const LoginModal: React.FC<LoginModalProps> = ({ isVisible, onClose }) => {
   const resetForms = () => {
     setPhoneForm({ phone: '', code: '', isCodeSent: false, countdown: 0, lastSendTime: 0 });
     setAccountForm({ username: '', password: '', rememberMe: false });
+    setQrcodeForm({
+      qrCodeUrl: 'https://ai-public.mastergo.com/ai/img_res/d182eccb133f8f85f65ac0b0c56773fb.jpg',
+      qrKey: '',
+      isRefreshing: false,
+      tips: '请使用手机扫描二维码登录'
+    });
     setError(null);
     setIsLoading(false);
+
+    // 清理二维码轮询定时器
+    if (qrCheckIntervalRef.current) {
+      clearInterval(qrCheckIntervalRef.current);
+      qrCheckIntervalRef.current = null;
+    }
   };
 
   // 关闭弹窗
@@ -101,10 +123,21 @@ const LoginModal: React.FC<LoginModalProps> = ({ isVisible, onClose }) => {
     onClose();
   };
 
-  // Tab切换
+  // Tab切换 - 完全按照Vue代码实现
   const handleTabChange = (tab: LoginTab) => {
+    // 清理二维码轮询定时器
+    if (qrCheckIntervalRef.current) {
+      clearInterval(qrCheckIntervalRef.current);
+      qrCheckIntervalRef.current = null;
+    }
+
     setActiveTab(tab);
     setError(null);
+
+    // 如果切换到扫码登录，获取二维码
+    if (tab === 'qrcode') {
+      handleGetQRCode();
+    }
   };
 
   // 发送验证码
@@ -269,8 +302,21 @@ const LoginModal: React.FC<LoginModalProps> = ({ isVisible, onClose }) => {
 
   // 账号登录
   const handleAccountLogin = async () => {
+    console.log('🚀 开始账号登录流程');
+    console.log('用户名:', accountForm.username);
+    console.log('密码:', accountForm.password ? '已输入' : '未输入');
+
     if (!accountForm.username || !accountForm.password) {
+      console.log('❌ 用户名或密码为空');
       setError('请输入用户名和密码');
+      return;
+    }
+
+    // 检查是否已经登录，避免重复登录
+    const currentUserInfo = useUserStore.getState().userInfo;
+    if (currentUserInfo && currentUserInfo.isLoggedIn) {
+      toast.warning('您已经登录，无需重复登录', { title: '提示' });
+      handleClose();
       return;
     }
 
@@ -281,16 +327,22 @@ const LoginModal: React.FC<LoginModalProps> = ({ isVisible, onClose }) => {
       // 设置登录中状态
       setLoginStatus('loading');
 
-      // 模拟登录
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // 构建用户信息对象
-      const userInfo = {
-        id: 'account_user_' + Date.now(),
+      // 调用真实的账号登录API
+      const result = await login({
         username: accountForm.username,
-        avatar: 'https://ai-public.mastergo.com/ai/img_res/480bba3a0094fc71a4b8e1d43800f97f.jpg',
+        password: accountForm.password
+      });
+
+      // 登录成功，构建用户信息对象
+      const username = result.nickname || accountForm.username;
+      const userInfo = {
+        id: result.userId.toString(), // 转换为字符串以匹配UserInfo接口
+        username,
+        avatar: result.avatar || 'https://ai-public.mastergo.com/ai/img_res/480bba3a0094fc71a4b8e1d43800f97f.jpg',
         isLoggedIn: true,
-        token: 'account_token_' + Date.now()
+        token: result.token,
+        vip_type: result.vip_type,
+        vip_token: result.vip_token
       };
 
       // 设置用户信息并进行持久化存储
@@ -301,36 +353,225 @@ const LoginModal: React.FC<LoginModalProps> = ({ isVisible, onClose }) => {
 
       console.log('账号登录成功，用户信息已保存:', userInfo);
 
-      toast.success(`欢迎回来，${accountForm.username}！`, { title: '登录成功' });
+      toast.success(`欢迎回来，${username}！`, { title: '登录成功' });
       handleClose();
-    } catch (err) {
-      const errorMessage = '登录失败，请检查用户名和密码';
+    } catch (err: any) {
+      const errorMessage = err?.message || '登录失败，请检查用户名和密码';
       setError(errorMessage);
 
       // 设置登录失败状态
       setLoginStatus('error', errorMessage);
+
+      // 在控制台输出详细错误信息，便于调试
+      console.error('账号登录失败详情:', {
+        message: errorMessage,
+        error: err
+      });
+
+      toast.error(errorMessage, {
+        title: '登录失败',
+        duration: 5000  // 错误信息显示更长时间
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 刷新二维码
-  const handleRefreshQRCode = async () => {
-    try {
-      setQrcodeForm(prev => ({ ...prev, isRefreshing: true }));
+  // 获取二维码 - 完全按照Vue代码实现
+  const handleGetQRCode = async () => {
+    console.log('🚀 开始获取二维码');
 
-      // 模拟刷新二维码
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    // 设置刷新状态
+    setQrcodeForm(prev => ({
+      ...prev,
+      isRefreshing: true,
+      tips: '正在生成二维码...'
+    }));
+
+    try {
+      // 清理之前的定时器
+      if (qrCheckIntervalRef.current) {
+        clearInterval(qrCheckIntervalRef.current);
+        qrCheckIntervalRef.current = null;
+      }
+
+      // 获取二维码 key
+      console.log('📝 获取二维码key...');
+      const qrKey = await getQRCodeKey();
+      console.log('✅ 获取二维码key成功:', qrKey);
+
+      // 使用 key 创建二维码
+      console.log('🎨 创建二维码图片...');
+      const qrCodeBase64 = await createQRCode(qrKey);
+      console.log('✅ 创建二维码成功');
 
       setQrcodeForm(prev => ({
         ...prev,
+        qrKey,
+        qrCodeUrl: qrCodeBase64,
         isRefreshing: false,
-        qrCodeUrl: prev.qrCodeUrl + '?t=' + Date.now() // 添加时间戳刷新
+        tips: '请使用手机扫描二维码登录'
       }));
-    } catch (err) {
-      setQrcodeForm(prev => ({ ...prev, isRefreshing: false }));
+
+      // 开始检查二维码状态
+      handleCheckQRStatus(qrKey);
+    } catch (error: any) {
+      console.error('❌ 获取二维码失败:', error);
+
+      const errorMessage = error?.message || '二维码生成失败，请稍后重试';
+      setQrcodeForm(prev => ({
+        ...prev,
+        isRefreshing: false,
+        tips: '二维码生成失败，请点击刷新重试'
+      }));
+
+      setError(errorMessage);
+      toast.error(errorMessage, {
+        title: '二维码生成失败',
+        duration: 5000
+      });
     }
   };
+
+  // 检查二维码扫描状态 - 完全按照Vue代码实现
+  const handleCheckQRStatus = (qrKey: string) => {
+    console.log('🔄 开始轮询检查二维码状态:', qrKey);
+
+    qrCheckIntervalRef.current = window.setInterval(async () => {
+      try {
+        console.log('🔍 检查二维码状态...');
+        const response = await checkQRCodeStatus(qrKey);
+        console.log('📊 二维码状态响应:', response);
+
+        if (response.status === 2) {
+          // 已扫码，等待确认
+          const nickname = response.nickname || '用户';
+          console.log('📱 用户已扫码，等待确认:', nickname);
+
+          setQrcodeForm(prev => ({
+            ...prev,
+            tips: `用户 ${nickname} 已扫码，等待确认`
+          }));
+        } else if (response.status === 4) {
+          // 登录成功
+          console.log('✅ 二维码登录成功');
+
+          if (qrCheckIntervalRef.current) {
+            clearInterval(qrCheckIntervalRef.current);
+            qrCheckIntervalRef.current = null;
+          }
+
+          // 检查是否已经登录，避免重复登录
+          const currentUserInfo = useUserStore.getState().userInfo;
+          if (currentUserInfo && currentUserInfo.isLoggedIn) {
+            toast.warning('您已经登录，无需重复登录', { title: '提示' });
+            handleClose();
+            return;
+          }
+
+          // 设置登录中状态
+          setLoginStatus('loading');
+
+          // 按照Vue代码和API响应结构，构建用户信息对象
+          const username = response.nickname || `用户${Date.now()}`;
+          const userInfo = {
+            id: (response.userid || Date.now()).toString(),
+            username,
+            avatar: response.pic || 'https://ai-public.mastergo.com/ai/img_res/480bba3a0094fc71a4b8e1d43800f97f.jpg',
+            isLoggedIn: true,
+            token: response.token || '',
+            vip_type: response.vip_type || 0,
+            vip_token: response.vip_token || ''
+          };
+
+          // 设置用户信息并进行持久化存储
+          setUserInfo(userInfo);
+          setLoginStatus('success');
+
+          console.log('二维码登录成功，用户信息已保存:', userInfo);
+
+          toast.success(`欢迎回来，${username}！`, { title: '登录成功' });
+          handleClose();
+        } else if (response.status === 0) {
+          // 二维码过期
+          console.log('⏰ 二维码已过期');
+
+          if (qrCheckIntervalRef.current) {
+            clearInterval(qrCheckIntervalRef.current);
+            qrCheckIntervalRef.current = null;
+          }
+
+          setQrcodeForm(prev => ({
+            ...prev,
+            tips: '二维码已过期，请点击刷新重新生成'
+          }));
+
+          toast.error('二维码已过期，请重新生成', {
+            title: '二维码过期',
+            duration: 5000
+          });
+        }
+        // 状态1表示等待扫码，不需要特殊处理，继续轮询
+      } catch (err: any) {
+        console.error('❌ 检查二维码状态失败:', err);
+
+        if (qrCheckIntervalRef.current) {
+          clearInterval(qrCheckIntervalRef.current);
+          qrCheckIntervalRef.current = null;
+        }
+
+        const errorMessage = err?.message || '二维码检测失败，请稍后重试';
+        setQrcodeForm(prev => ({
+          ...prev,
+          tips: '网络异常，请点击刷新重试'
+        }));
+
+        toast.error(errorMessage, {
+          title: '检测失败',
+          duration: 5000
+        });
+      }
+    }, 1000);
+  };
+
+  // 刷新二维码
+  const handleRefreshQRCode = () => {
+    console.log('🔄 刷新二维码');
+
+    // 清理定时器
+    if (qrCheckIntervalRef.current) {
+      clearInterval(qrCheckIntervalRef.current);
+      qrCheckIntervalRef.current = null;
+    }
+
+    // 清除错误状态
+    setError(null);
+
+    // 重新获取二维码
+    handleGetQRCode();
+  };
+
+  // 组件卸载时清理定时器
+  useEffect(() => {
+    return () => {
+      console.log('🧹 LoginModal组件卸载，清理二维码轮询定时器');
+      if (qrCheckIntervalRef.current) {
+        clearInterval(qrCheckIntervalRef.current);
+        qrCheckIntervalRef.current = null;
+      }
+    };
+  }, []);
+
+  // 监听弹窗关闭，清理定时器
+  useEffect(() => {
+    if (!isVisible) {
+      console.log('🧹 登录弹窗关闭，清理二维码轮询定时器');
+      if (qrCheckIntervalRef.current) {
+        clearInterval(qrCheckIntervalRef.current);
+        qrCheckIntervalRef.current = null;
+      }
+    }
+  }, [isVisible]);
 
   // 如果不可见，不渲染组件
   if (!isVisible) {
@@ -533,7 +774,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isVisible, onClose }) => {
               </div>
 
               <div className="login-qrcode-tips">
-                <p>请使用手机扫描二维码登录</p>
+                <p>{qrcodeForm.tips}</p>
                 <p className="login-qrcode-tips-sub">扫码后请在手机上确认登录</p>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DEFAULT_COVER } from '../constants';
 import { formatDuration } from '../utils';
+import { useAudioPlayerStore } from '../store/audioPlayerStore';
 import CachedImage from './CachedImage';
 
 /**
@@ -12,53 +13,22 @@ interface PlaylistDrawerProps {
   onClose: () => void;
 }
 
-// 模拟数据 - 实际应用中应从状态管理或API获取
-const playlistData = [
-  {
-    id: 1,
-    title: "Blinding Lights",
-    artist: "The Weeknd",
-    album: "After Hours",
-    duration: "3:20",
-    imageUrl: DEFAULT_COVER
-  },
-  {
-    id: 2,
-    title: "Shape of You",
-    artist: "Ed Sheeran",
-    album: "÷ (Divide)",
-    duration: "3:53",
-    imageUrl: DEFAULT_COVER
-  },
-  {
-    id: 3,
-    title: "Dance Monkey",
-    artist: "Tones and I",
-    album: "The Kids Are Coming",
-    duration: "3:29",
-    imageUrl: DEFAULT_COVER
-  },
-  {
-    id: 4,
-    title: "Watermelon Sugar",
-    artist: "Harry Styles",
-    album: "Fine Line",
-    duration: "2:54",
-    imageUrl: DEFAULT_COVER
-  },
-  {
-    id: 5,
-    title: "Don't Start Now",
-    artist: "Dua Lipa",
-    album: "Future Nostalgia",
-    duration: "3:03",
-    imageUrl: DEFAULT_COVER
-  }
-];
+
 
 const PlaylistDrawer: React.FC<PlaylistDrawerProps> = ({ isVisible, onClose }) => {
   const [visible, setVisible] = useState(isVisible);
   const [isClosing, setIsClosing] = useState(false);
+
+  // 从音频播放器状态管理获取数据
+  const {
+    queue,
+    currentSong,
+    play,
+    removeFromQueue,
+    clearQueue,
+    addToFavorites,
+    isFavorite
+  } = useAudioPlayerStore();
 
   useEffect(() => {
     if (isVisible) {
@@ -101,14 +71,33 @@ const PlaylistDrawer: React.FC<PlaylistDrawerProps> = ({ isVisible, onClose }) =
         <div className="recently-played-header">
           <div className="playlist-header-info">
             <h2 className="section-title">播放列表</h2>
-            <span className="playlist-count">{playlistData.length}</span>
+            <span className="playlist-count">{queue.length}</span>
           </div>
           <div className="recently-played-actions">
-            <button className="playlist-action-btn">
+            <button
+              className="playlist-action-btn"
+              onClick={() => {
+                // 收藏所有歌曲
+                queue.forEach(song => {
+                  if (!isFavorite(song.id)) {
+                    addToFavorites(song);
+                  }
+                });
+              }}
+              disabled={queue.length === 0}
+            >
               <i className="fas fa-heart"></i>
               收藏全部
             </button>
-            <button className="playlist-action-btn">
+            <button
+              className="playlist-action-btn"
+              onClick={() => {
+                if (window.confirm('确定要清空播放列表吗？')) {
+                  clearQueue();
+                }
+              }}
+              disabled={queue.length === 0}
+            >
               <i className="fas fa-trash"></i>
               清空
             </button>
@@ -118,36 +107,65 @@ const PlaylistDrawer: React.FC<PlaylistDrawerProps> = ({ isVisible, onClose }) =
           </div>
         </div>
         <div className="playlist-content">
-          {playlistData.length > 0 ? (
-            playlistData.map((song, index) => (
+          {queue.length > 0 ? (
+            queue.map((song, index) => (
               <div
                 key={song.id}
-                className="playlist-song-item"
+                className={`playlist-song-item ${currentSong?.id === song.id ? 'current-playing' : ''}`}
                 style={{ animationDelay: `${index * 0.05}s` }}
                 onClick={() => {
-                  // TODO: 实现播放功能
-                  console.log('播放歌曲:', song.title);
+                  play(song);
                 }}
               >
                 <div className="song-cover-container">
                   <CachedImage
-                    src={song.imageUrl}
+                    src={song.coverUrl || DEFAULT_COVER}
                     className="playlist-song-cover"
                     alt={song.title}
                   />
                   <div className="song-play-overlay">
-                    <i className="fas fa-play"></i>
+                    <i className={`fas ${currentSong?.id === song.id ? 'fa-pause' : 'fa-play'}`}></i>
                   </div>
                 </div>
                 <div className="song-info">
                   <div className="song-main-info">
                     <span className="playlist-song-title">{song.title}</span>
                     <div className="song-meta">
-                      <span className="song-quality">SQ</span>
+                      <span className="song-quality">{song.quality || 'SQ'}</span>
                       <span className="playlist-song-artist">{song.artist}</span>
                     </div>
                   </div>
-                  <div className="playlist-song-duration">{formatDuration(song.duration)}</div>
+                  <div className="playlist-song-duration">
+                    {formatDuration(typeof song.duration === 'string' ? song.duration : song.duration || 0)}
+                  </div>
+                  <div className="song-actions">
+                    <button
+                      className="song-action-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (isFavorite(song.id)) {
+                          // TODO: 从收藏移除
+                        } else {
+                          addToFavorites(song);
+                        }
+                      }}
+                      title={isFavorite(song.id) ? '取消收藏' : '收藏'}
+                    >
+                      <i className={`fas ${isFavorite(song.id) ? 'fa-heart' : 'fa-heart-o'}`}></i>
+                    </button>
+                    <button
+                      className="song-action-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm(`确定要从播放列表移除 "${song.title}" 吗？`)) {
+                          removeFromQueue(index);
+                        }
+                      }}
+                      title="从列表移除"
+                    >
+                      <i className="fas fa-times"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))

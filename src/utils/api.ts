@@ -30,8 +30,13 @@ export const API_ENDPOINTS = {
   // 用户状态
   USER_STATUS: '/user/status',
   // 登录相关
-  LOGIN_CELLPHONE: '/login/cellphone',
-  CAPTCHA_SENT: '/captcha/sent',
+  LOGIN: '/login',                    // 账号密码登录
+  LOGIN_CELLPHONE: '/login/cellphone', // 手机号登录
+  CAPTCHA_SENT: '/captcha/sent',      // 发送验证码
+  // 扫码登录相关
+  LOGIN_QR_KEY: '/login/qr/key',      // 获取二维码key
+  LOGIN_QR_CREATE: '/login/qr/create', // 创建二维码
+  LOGIN_QR_CHECK: '/login/qr/check',   // 检查二维码状态
 };
 
 /**
@@ -72,16 +77,7 @@ export interface Playlist {
  */
 export const DEFAULT_COVER = '/src/assets/default-cover.jpg';
 
-/**
- * 用户接口
- */
-export interface UserInfo {
-  id: string;
-  username: string;
-  nickname?: string;
-  avatar: string;
-  token?: string;
-}
+
 
 /**
  * API服务类
@@ -230,60 +226,7 @@ class ApiService {
     }
   }
 
-  /**
-   * 获取用户详情
-   * @param userId 用户ID
-   * @returns Promise<UserInfo>
-   */
-  public async getUserDetail(userId: string): Promise<UserInfo> {
-    try {
-      const response = await get(API_ENDPOINTS.USER_DETAIL, { userid: userId });
 
-      if (response && response.status === 1 && response.data) {
-        return {
-          id: userId,
-          username: response.data.nickname || `用户${userId.substring(0, 4)}`,
-          nickname: response.data.nickname,
-          avatar: response.data.avatar || 'https://ai-public.mastergo.com/ai/img_res/480bba3a0094fc71a4b8e1d43800f97f.jpg',
-        };
-      }
-
-      // 如果没有获取到用户信息，使用默认值
-      return {
-        id: userId,
-        username: `用户${userId.substring(0, 4)}`,
-        avatar: 'https://ai-public.mastergo.com/ai/img_res/480bba3a0094fc71a4b8e1d43800f97f.jpg',
-      };
-    } catch (error) {
-      console.error('获取用户详情失败:', error);
-      // 返回默认用户信息
-      return {
-        id: userId,
-        username: `用户${userId.substring(0, 4)}`,
-        avatar: 'https://ai-public.mastergo.com/ai/img_res/480bba3a0094fc71a4b8e1d43800f97f.jpg',
-      };
-    }
-  }
-
-  /**
-   * 检查用户登录状态
-   * @param token 用户令牌
-   * @returns Promise<boolean>
-   */
-  public async checkUserStatus(token: string): Promise<boolean> {
-    try {
-      const response = await get(API_ENDPOINTS.USER_STATUS, {}, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      return response && response.status === 1;
-    } catch (error) {
-      console.error('检查用户状态失败:', error);
-      return false;
-    }
-  }
 
   /**
    * 格式化时长
