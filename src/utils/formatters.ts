@@ -3,17 +3,63 @@
  */
 
 /**
+ * 封面图片标准尺寸规格
+ */
+export const COVER_SIZES = {
+  SMALL: 64,      // 小型缩略图（播放列表、搜索结果等）
+  MEDIUM: 150,    // 中等尺寸显示（推荐列表、搜索结果）
+  LARGE: 240,     // 较大显示区域（播放器主界面）
+  EXTRA_LARGE: 480 // 高清显示需求（全屏播放界面）
+} as const;
+
+/**
+ * 封面图片使用场景枚举
+ */
+export type CoverUsageType = 'thumbnail' | 'list' | 'player' | 'fullscreen';
+
+/**
+ * 根据使用场景获取合适的封面图片尺寸
+ * @param usage 使用场景
+ * @returns 对应的图片尺寸
+ */
+export const getCoverSizeByUsage = (usage: CoverUsageType): number => {
+  switch (usage) {
+    case 'thumbnail':
+      return COVER_SIZES.SMALL;
+    case 'list':
+      return COVER_SIZES.MEDIUM;
+    case 'player':
+      return COVER_SIZES.LARGE;
+    case 'fullscreen':
+      return COVER_SIZES.EXTRA_LARGE;
+    default:
+      return COVER_SIZES.MEDIUM;
+  }
+};
+
+/**
  * 格式化封面图片URL，替换{size}参数
  * @param url 原始封面URL，例如 "http://imge.kugou.com/stdmusic/{size}/20250101/20250101073202450754.jpg"
  * @param size 图片尺寸，默认为150
  * @returns 替换size后的URL
  */
-export const formatCoverUrl = (url?: string, size: number = 150): string => {
-  // 如果URL为空，返回默认封面
+export const formatCoverUrl = (url?: string, size: number = COVER_SIZES.MEDIUM): string => {
+  // 如果URL为空，返回空字符串
   if (!url) return '';
 
   // 替换{size}参数
   return url.replace('{size}', size.toString());
+};
+
+/**
+ * 根据使用场景格式化封面图片URL
+ * @param url 原始封面URL
+ * @param usage 使用场景
+ * @returns 格式化后的URL
+ */
+export const formatCoverUrlByUsage = (url?: string, usage: CoverUsageType = 'list'): string => {
+  const size = getCoverSizeByUsage(usage);
+  return formatCoverUrl(url, size);
 };
 
 /**

@@ -10,7 +10,7 @@ import ToastContainer from './components/Toast';
 
 import { toast } from './store/toastStore';
 import { DEFAULT_COVER, DAILY_RECOMMEND_COVER } from './constants';
-import { formatDuration, formatCoverUrl } from './utils';
+import { formatDuration, formatCoverUrlByUsage, formatCoverUrl, COVER_SIZES, getCoverSizeByUsage } from './utils';
 import {
   useUIStore,
   useSearchStore,
@@ -138,6 +138,31 @@ const App: React.FC = () => {
         console.info('ℹ️ Console.info 正常工作!');
       };
       console.log('Console测试函数已暴露到全局: window.testConsole()');
+
+      // 添加封面图片尺寸测试函数
+      (window as any).testCoverSizes = () => {
+        const testUrl = "http://imge.kugou.com/stdmusic/{size}/20250101/20250101073202450754.jpg";
+
+        console.log('🖼️ 封面图片尺寸测试:');
+        console.log('标准尺寸规格:', COVER_SIZES);
+
+        console.log('\n📏 各种尺寸的URL:');
+        Object.entries(COVER_SIZES).forEach(([key, size]) => {
+          const url = formatCoverUrl(testUrl, size);
+          console.log(`${key} (${size}px):`, url);
+        });
+
+        console.log('\n🎯 使用场景测试:');
+        const usageTypes = ['thumbnail', 'list', 'player', 'fullscreen'] as const;
+        usageTypes.forEach(usage => {
+          const size = getCoverSizeByUsage(usage);
+          const url = formatCoverUrlByUsage(testUrl, usage);
+          console.log(`${usage} (${size}px):`, url);
+        });
+
+        console.log('\n✅ 封面图片尺寸功能测试完成!');
+      };
+      console.log('封面图片尺寸测试函数已暴露到全局: window.testCoverSizes()');
     }
   }, []);
 
@@ -230,7 +255,7 @@ const App: React.FC = () => {
                       <div className="song-number">{index + 1}</div>
                       <div className="song-title-container">
                         <CachedImage
-                          src={song.sizable_cover ? formatCoverUrl(song.sizable_cover) : (song.pic || DEFAULT_COVER)}
+                          src={song.sizable_cover ? formatCoverUrlByUsage(song.sizable_cover, 'thumbnail') : (song.pic || DEFAULT_COVER)}
                           className="song-image"
                           alt={song.name}
                         />

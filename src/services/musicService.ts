@@ -3,7 +3,7 @@
  * 封装与音乐相关的API请求
  */
 import { get, post } from '../utils/httpClient';
-import { formatCoverUrl } from '../utils/formatters';
+import { formatCoverUrlByUsage } from '../utils/formatters';
 import { DEFAULT_COVER } from '../constants';
 
 /**
@@ -49,7 +49,7 @@ export const getDailyRecommendations = async (): Promise<Song[]> => {
         artist: item.author_name || item.singername || '',
         album: item.album_name || item.album || '',
         duration: formatDuration(item.duration || item.time_length),
-        imageUrl: item.sizable_cover ? formatCoverUrl(item.sizable_cover) : (item.album_img || item.img || DEFAULT_COVER)
+        imageUrl: item.sizable_cover ? formatCoverUrlByUsage(item.sizable_cover, 'list') : (item.album_img || item.img || DEFAULT_COVER)
       }));
     }
     
@@ -87,7 +87,7 @@ export const searchMusic = async (keyword: string, page: number = 1, pageSize: n
         artist: item.author_name || item.singername || '',
         album: item.album_name || item.album || '',
         duration: formatDuration(item.duration || item.time_length),
-        imageUrl: item.sizable_cover ? formatCoverUrl(item.sizable_cover) : (item.album_img || item.img || DEFAULT_COVER)
+        imageUrl: item.sizable_cover ? formatCoverUrlByUsage(item.sizable_cover, 'list') : (item.album_img || item.img || DEFAULT_COVER)
       }));
     }
     
@@ -116,7 +116,7 @@ export const getSongDetail = async (songId: string): Promise<Song | null> => {
         artist: songData.author_name || songData.singername || '',
         album: songData.album_name || songData.album || '',
         duration: formatDuration(songData.duration || songData.time_length),
-        imageUrl: songData.sizable_cover ? formatCoverUrl(songData.sizable_cover) : (songData.album_img || songData.img || DEFAULT_COVER),
+        imageUrl: songData.sizable_cover ? formatCoverUrlByUsage(songData.sizable_cover, 'player') : (songData.album_img || songData.img || DEFAULT_COVER),
         url: songData.url || ''
       };
     }

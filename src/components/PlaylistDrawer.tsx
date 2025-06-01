@@ -99,38 +99,67 @@ const PlaylistDrawer: React.FC<PlaylistDrawerProps> = ({ isVisible, onClose }) =
       ></div>
       <div className={`recently-played-container ${isClosing ? 'closing' : ''}`}>
         <div className="recently-played-header">
-          <h2 className="section-title">播放列表</h2>
+          <div className="playlist-header-info">
+            <h2 className="section-title">播放列表</h2>
+            <span className="playlist-count">{playlistData.length}</span>
+          </div>
           <div className="recently-played-actions">
-            <button className="recently-played-action-btn">
-              <i className="fas fa-play"></i> 播放全部
+            <button className="playlist-action-btn">
+              <i className="fas fa-heart"></i>
+              收藏全部
+            </button>
+            <button className="playlist-action-btn">
+              <i className="fas fa-trash"></i>
+              清空
             </button>
             <button className="recently-played-close-btn" onClick={handleClose}>
               <i className="fas fa-times"></i>
             </button>
           </div>
         </div>
-        <div className="song-list">
-          <div className="song-list-header">
-            <div className="song-number">#</div>
-            <div style={{ flex: 1 }}>歌曲标题</div>
-            <div className="song-artist">歌手</div>
-            <div className="song-album">专辑</div>
-            <div className="song-duration">时长</div>
-          </div>
-          <div className="song-list-body">
-            {playlistData.map((song) => (
-              <div key={song.id} className="song-item">
-                <div className="song-number">{song.id}</div>
-                <div className="song-title-container">
-                  <CachedImage src={song.imageUrl} className="song-image" alt={song.title} />
-                  <span className="song-title">{song.title}</span>
+        <div className="playlist-content">
+          {playlistData.length > 0 ? (
+            playlistData.map((song, index) => (
+              <div
+                key={song.id}
+                className="playlist-song-item"
+                style={{ animationDelay: `${index * 0.05}s` }}
+                onClick={() => {
+                  // TODO: 实现播放功能
+                  console.log('播放歌曲:', song.title);
+                }}
+              >
+                <div className="song-cover-container">
+                  <CachedImage
+                    src={song.imageUrl}
+                    className="playlist-song-cover"
+                    alt={song.title}
+                  />
+                  <div className="song-play-overlay">
+                    <i className="fas fa-play"></i>
+                  </div>
                 </div>
-                <div className="song-artist">{song.artist}</div>
-                <div className="song-album">{song.album}</div>
-                <div className="song-duration">{formatDuration(song.duration)}</div>
+                <div className="song-info">
+                  <div className="song-main-info">
+                    <span className="playlist-song-title">{song.title}</span>
+                    <div className="song-meta">
+                      <span className="song-quality">SQ</span>
+                      <span className="playlist-song-artist">{song.artist}</span>
+                    </div>
+                  </div>
+                  <div className="playlist-song-duration">{formatDuration(song.duration)}</div>
+                </div>
               </div>
-            ))}
-          </div>
+            ))
+          ) : (
+            <div className="playlist-empty">
+              <div className="empty-icon">
+                <i className="fas fa-music"></i>
+              </div>
+              <p className="empty-text">播放列表为空</p>
+              <p className="empty-subtext">开始播放音乐，歌曲将会出现在这里</p>
+            </div>
+          )}
         </div>
       </div>
     </>

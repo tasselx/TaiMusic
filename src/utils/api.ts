@@ -3,7 +3,7 @@
  * 封装所有API请求，统一管理API接口
  */
 import { get } from './httpClient';
-import { formatCoverUrl } from './formatters';
+import { formatCoverUrlByUsage } from './formatters';
 
 // API接口常量
 export const API_ENDPOINTS = {
@@ -152,7 +152,7 @@ class ApiService {
 
           // 转换数据格式
           return songList.map((item: any) => {
-            const imageUrl = item.sizable_cover ? formatCoverUrl(item.sizable_cover) : (item.album_img || item.img || DEFAULT_COVER);
+            const imageUrl = item.sizable_cover ? formatCoverUrlByUsage(item.sizable_cover, 'list') : (item.album_img || item.img || DEFAULT_COVER);
 
             return {
               id: item.hash || item.audio_id || Math.random(),
@@ -200,7 +200,7 @@ class ApiService {
           artist: item.author_name || item.singername || '',
           album: item.album_name || item.album || '',
           duration: this.formatDuration(item.duration || item.time_length),
-          imageUrl: item.sizable_cover ? formatCoverUrl(item.sizable_cover) : (item.album_img || item.img || DEFAULT_COVER)
+          imageUrl: item.sizable_cover ? formatCoverUrlByUsage(item.sizable_cover, 'list') : (item.album_img || item.img || DEFAULT_COVER)
         }));
       }
 
