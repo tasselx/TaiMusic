@@ -156,7 +156,8 @@ class ApiService {
               artist: item.author_name || item.singername || '',
               album: item.album_name || item.album || '',
               duration: this.formatDuration(item.duration || item.time_length),
-              imageUrl: imageUrl
+              imageUrl: imageUrl,
+              hash: item.hash || item.audio_id // 保存hash用于获取播放URL
             };
           });
         }

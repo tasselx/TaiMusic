@@ -4,17 +4,18 @@
  */
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useUserStore } from '../store';
+import { currentApiConfig } from '../config/api';
 
 /**
  * 创建axios实例
  */
 const httpClient = axios.create({
-  baseURL: 'http://127.0.0.1:3000',
-  timeout: 10000,
+  baseURL: currentApiConfig.baseURL,
+  timeout: currentApiConfig.timeout,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
+  withCredentials: currentApiConfig.withCredentials,
 });
 
 /**

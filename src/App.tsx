@@ -12,6 +12,7 @@ import AudioPlayerDemo from './components/AudioPlayerDemo';
 import { toast } from './store/toastStore';
 import { DEFAULT_COVER, DAILY_RECOMMEND_COVER } from './constants';
 import { formatDuration, formatCoverUrlByUsage, formatCoverUrl, COVER_SIZES, getCoverSizeByUsage } from './utils';
+import './utils/corsTest'; // 引入CORS测试工具
 import {
   useUIStore,
   useSearchStore,

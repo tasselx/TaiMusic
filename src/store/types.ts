@@ -40,6 +40,8 @@ export interface Song {
   imageUrl: string;
   sizable_cover?: string; // 可调整大小的封面URL
   url?: string; // 歌曲播放地址
+  hash?: string; // 歌曲hash，用于获取播放URL
+  coverUrl?: string; // 播放器使用的封面URL字段
 }
 
 // 轮播图类型

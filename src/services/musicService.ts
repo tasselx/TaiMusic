@@ -17,6 +17,36 @@ export interface Song {
   duration: string;
   imageUrl: string;
   url?: string;
+  hash?: string; // 歌曲hash，用于获取播放URL
+}
+
+/**
+ * 歌曲URL API响应接口
+ */
+export interface SongUrlResponse {
+  status: number;
+  url?: string[];
+  backupUrl?: string[];
+  fileName?: string;
+  timeLength?: number;
+  fileSize?: number;
+  bitRate?: number;
+  extName?: string;
+  hash?: string;
+  is_full_audio?: number;
+  std_hash?: string;
+  volume?: number;
+  std_hash_time?: number;
+  fileHead?: number;
+  priv_status?: number;
+  volume_peak?: number;
+  volume_gain?: number;
+  q?: number;
+  classmap?: any;
+  tracker_through?: any;
+  trans_param?: any;
+  auth_through?: any[];
+  hash_offset?: any;
 }
 
 /**
@@ -49,7 +79,8 @@ export const getDailyRecommendations = async (): Promise<Song[]> => {
         artist: item.author_name || item.singername || '',
         album: item.album_name || item.album || '',
         duration: formatDuration(item.duration || item.time_length),
-        imageUrl: item.sizable_cover ? formatCoverUrlByUsage(item.sizable_cover, 'list') : (item.album_img || item.img || DEFAULT_COVER)
+        imageUrl: item.sizable_cover ? formatCoverUrlByUsage(item.sizable_cover, 'list') : (item.album_img || item.img || DEFAULT_COVER),
+        hash: item.hash || item.audio_id // 保存hash用于获取播放URL
       }));
     }
     
@@ -99,6 +130,72 @@ export const searchMusic = async (keyword: string, page: number = 1, pageSize: n
 };
 
 /**
+ * 获取歌曲播放URL
+ * @param hash 歌曲hash
+ * @returns Promise<string | null>
+ */
+export const getSongUrl = async (hash: string): Promise<string | null> => {
+  try {
+    if (!hash) {
+      console.error('获取歌曲URL失败: hash参数为空');
+      return null;
+    }
+
+    const response: SongUrlResponse = await get('/song/url', {
+      hash: hash,
+      free_part: 1
+    });
+
+    if (response && response.status === 1) {
+      // 根据实际API响应结构获取播放URL
+      // httpClient响应拦截器已经返回了response.data，所以response就是实际数据
+      // 优先级：url数组第一个 > backupUrl数组第一个
+      let playUrl = null;
+
+      console.log('API响应数据:', response);
+
+      if (response.url && Array.isArray(response.url) && response.url.length > 0) {
+        playUrl = response.url[0];
+        console.log('从url数组获取播放地址:', playUrl);
+      } else if (response.backupUrl && Array.isArray(response.backupUrl) && response.backupUrl.length > 0) {
+        playUrl = response.backupUrl[0];
+        console.log('从backupUrl数组获取播放地址:', playUrl);
+      }
+
+      if (playUrl) {
+        console.log('成功获取歌曲播放URL:', playUrl);
+        console.log('歌曲信息:', {
+          fileName: response.fileName,
+          timeLength: response.timeLength,
+          fileSize: response.fileSize,
+          bitRate: response.bitRate,
+          extName: response.extName,
+          hash: response.hash
+        });
+        return playUrl;
+      } else {
+        console.error('API响应中未找到播放URL，响应结构:', {
+          status: response.status,
+          hasUrl: !!response.url,
+          hasBackupUrl: !!response.backupUrl,
+          urlLength: response.url?.length || 0,
+          backupUrlLength: response.backupUrl?.length || 0,
+          responseKeys: Object.keys(response)
+        });
+        return null;
+      }
+    } else {
+      console.error('获取歌曲URL失败，API响应状态:', response?.status || 'undefined');
+      console.error('完整响应:', response);
+      return null;
+    }
+  } catch (error) {
+    console.error('获取歌曲URL失败:', error);
+    return null;
+  }
+};
+
+/**
  * 获取歌曲详情
  * @param songId 歌曲ID
  * @returns Promise<Song | null>
@@ -106,10 +203,10 @@ export const searchMusic = async (keyword: string, page: number = 1, pageSize: n
 export const getSongDetail = async (songId: string): Promise<Song | null> => {
   try {
     const response = await get('/song/detail', { hash: songId });
-    
+
     if (response && response.data) {
       const songData = response.data;
-      
+
       return {
         id: songId,
         title: songData.songname || songData.song_name || '',
@@ -117,7 +214,8 @@ export const getSongDetail = async (songId: string): Promise<Song | null> => {
         album: songData.album_name || songData.album || '',
         duration: formatDuration(songData.duration || songData.time_length),
         imageUrl: songData.sizable_cover ? formatCoverUrlByUsage(songData.sizable_cover, 'player') : (songData.album_img || songData.img || DEFAULT_COVER),
-        url: songData.url || ''
+        url: songData.url || '',
+        hash: songId
       };
     }
     

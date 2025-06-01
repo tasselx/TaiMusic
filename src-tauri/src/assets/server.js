@@ -69,8 +69,9 @@ async function consturctServer(moduleDefs) {
       res.set({
         'Access-Control-Allow-Credentials': true,
         'Access-Control-Allow-Origin': CORS_ALLOW_ORIGIN || req.headers.origin || '*',
-        'Access-Control-Allow-Headers': 'X-Requested-With,Content-Type',
-        'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS',
+        'Access-Control-Allow-Headers': 'X-Requested-With,Content-Type,Cache-Control,Authorization,Accept,Origin,User-Agent,DNT,Keep-Alive,X-Mx-ReqToken,X-Data-Type,X-Auth-Token,X-Language',
+        'Access-Control-Allow-Methods': 'PUT,POST,GET,DELETE,OPTIONS,PATCH,HEAD',
+        'Access-Control-Expose-Headers': 'Set-Cookie',
         'Content-Type': 'application/json; charset=utf-8',
       });
     }
