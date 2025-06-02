@@ -66,6 +66,24 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ className = '' }) => {
     };
   }, [isOpen]);
 
+  // 处理登出
+  const handleLogout = async () => {
+    try {
+      // 询问用户是否要清理所有缓存
+      const clearAllCache = window.confirm(
+        '是否要清理所有缓存数据？\n\n' +
+        '选择"确定"：清理所有缓存（包括音频、图片缓存）\n' +
+        '选择"取消"：仅清理用户相关数据（播放历史、收藏等）'
+      );
+
+      await logout(clearAllCache);
+      toast.success(clearAllCache ? '已成功登出并清理所有缓存' : '已成功登出');
+    } catch (error) {
+      console.error('登出失败:', error);
+      toast.error('登出时发生错误');
+    }
+  };
+
   // 菜单项点击处理
   const handleMenuItemClick = (action: string) => {
     closeDropdown();
@@ -81,8 +99,7 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ className = '' }) => {
         break;
       case 'logout':
         console.log('用户登出');
-        logout();
-        toast.success('已成功登出');
+        handleLogout();
         break;
       case 'updates':
         console.log('检查更新');

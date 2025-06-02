@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useApiStore } from '../store';
 import { useAudioPlayerStore } from '../store/audioPlayerStore';
+import useUserStore from '../store/userStore';
 import { DAILY_RECOMMEND_COVER } from '../constants';
 import { getSongUrl } from '../services/musicService';
 import { toast } from '../store/toastStore';
@@ -18,6 +19,9 @@ const DailyRecommendations: React.FC = () => {
 
   // 从音频播放器Store获取播放方法
   const { play } = useAudioPlayerStore();
+
+  // 从用户Store获取设置回调方法
+  const { setOnLoginSuccess } = useUserStore();
 
   // 本地状态管理
   const [isLoading, setIsLoading] = useState(true);
@@ -91,6 +95,36 @@ const DailyRecommendations: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  // 刷新每日推荐数据的函数
+  const refreshDailyRecommendations = async () => {
+    console.log('🔄 刷新每日推荐数据');
+    try {
+      setIsLoading(true);
+      setHasError(false);
+      await fetchDailyRecommendations();
+      toast.success('每日推荐已更新', { duration: 2000 });
+    } catch (error) {
+      console.error('刷新每日推荐失败:', error);
+      setHasError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 设置登录成功回调
+  useEffect(() => {
+    console.log('🎯 设置登录成功回调');
+    setOnLoginSuccess(() => {
+      console.log('🎉 用户登录成功，刷新每日推荐');
+      refreshDailyRecommendations();
+    });
+
+    // 清理函数：组件卸载时清除回调
+    return () => {
+      setOnLoginSuccess(undefined);
+    };
+  }, [setOnLoginSuccess]);
 
   // 组件挂载时获取每日推荐数据
   useEffect(() => {

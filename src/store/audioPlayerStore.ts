@@ -81,6 +81,7 @@ interface AudioPlayerState {
   // 收藏管理
   addToFavorites: (song: Song) => void;
   removeFromFavorites: (songId: string) => void;
+  clearFavorites: () => void;
   isFavorite: (songId: string) => boolean;
   
   // 缓存管理
@@ -419,6 +420,11 @@ export const useAudioPlayerStore = create<AudioPlayerState>()(
           const state = get();
           const newFavorites = state.favorites.filter(f => f.song.id !== songId);
           set({ favorites: newFavorites });
+        },
+
+        // 清空收藏列表
+        clearFavorites: () => {
+          set({ favorites: [] });
         },
 
         // 检查是否收藏
