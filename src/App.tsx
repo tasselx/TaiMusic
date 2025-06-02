@@ -19,6 +19,7 @@ import {
   useApiStore,
   Song
 } from './store';
+import { useCurrentSongHighlight } from './hooks/useCurrentSongHighlight';
 
 const App: React.FC = () => {
   // 使用Zustand状态管理
@@ -252,22 +253,40 @@ const App: React.FC = () => {
                   <div className="song-duration">时长</div>
                 </div>
                 <div className="song-list-body">
-                  {searchResults.map((song, index) => (
-                    <div key={song.id || index} className="song-item">
-                      <div className="song-number">{index + 1}</div>
-                      <div className="song-title-container">
-                        <CachedImage
-                          src={song.sizable_cover ? formatCoverUrlByUsage(song.sizable_cover, 'thumbnail') : (song.pic || DEFAULT_COVER)}
-                          className="song-image"
-                          alt={song.name}
-                        />
-                        <span className="song-title search-result-text">{song.name}</span>
+                  {searchResults.map((song, index) => {
+                    // 获取当前歌曲高亮信息
+                    const highlightInfo = useCurrentSongHighlight(song, (song as any).hash || song.id);
+
+                    return (
+                      <div
+                        key={song.id || index}
+                        className={`song-item ${highlightInfo.containerClassName}`}
+                      >
+                        <div className="song-number">
+                          {highlightInfo.isCurrentSong ? (
+                            highlightInfo.playingIndicator
+                          ) : (
+                            index + 1
+                          )}
+                        </div>
+                        <div className="song-title-container">
+                          <CachedImage
+                            src={song.sizable_cover ? formatCoverUrlByUsage(song.sizable_cover, 'thumbnail') : (song.pic || DEFAULT_COVER)}
+                            className="song-image"
+                            alt={song.name}
+                          />
+                          <span className={`song-title search-result-text ${highlightInfo.titleClassName}`}>
+                            {song.name}
+                          </span>
+                        </div>
+                        <div className={`song-artist search-result-text ${highlightInfo.artistClassName}`}>
+                          {song.singer}
+                        </div>
+                        <div className="song-album search-result-text">{song.album}</div>
+                        <div className="song-duration">{formatDuration(song.duration)}</div>
                       </div>
-                      <div className="song-artist search-result-text">{song.singer}</div>
-                      <div className="song-album search-result-text">{song.album}</div>
-                      <div className="song-duration">{formatDuration(song.duration)}</div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>

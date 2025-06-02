@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { DEFAULT_COVER } from '../constants';
-import { formatDuration } from '../utils';
 import { useAudioPlayerStore } from '../store/audioPlayerStore';
-import CachedImage from './CachedImage';
+import PlaylistSongItem from './PlaylistSongItem';
 
 /**
  * 播放列表组件
@@ -22,7 +20,6 @@ const PlaylistDrawer: React.FC<PlaylistDrawerProps> = ({ isVisible, onClose }) =
   // 从音频播放器状态管理获取数据
   const {
     queue,
-    currentSong,
     play,
     removeFromQueue,
     clearQueue,
@@ -109,65 +106,13 @@ const PlaylistDrawer: React.FC<PlaylistDrawerProps> = ({ isVisible, onClose }) =
         <div className="playlist-content">
           {queue.length > 0 ? (
             queue.map((song, index) => (
-              <div
+              <PlaylistSongItem
                 key={song.id}
-                className={`playlist-song-item ${currentSong?.id === song.id ? 'current-playing' : ''}`}
-                style={{ animationDelay: `${index * 0.05}s` }}
-                onClick={() => {
-                  play(song);
-                }}
-              >
-                <div className="song-cover-container">
-                  <CachedImage
-                    src={song.coverUrl || DEFAULT_COVER}
-                    className="playlist-song-cover"
-                    alt={song.title}
-                  />
-                  <div className="song-play-overlay">
-                    <i className={`fas ${currentSong?.id === song.id ? 'fa-pause' : 'fa-play'}`}></i>
-                  </div>
-                </div>
-                <div className="song-info">
-                  <div className="song-main-info">
-                    <span className="playlist-song-title">{song.title}</span>
-                    <div className="song-meta">
-                      <span className="song-quality">{song.quality || 'SQ'}</span>
-                      <span className="playlist-song-artist">{song.artist}</span>
-                    </div>
-                  </div>
-                  <div className="playlist-song-duration">
-                    {formatDuration(typeof song.duration === 'string' ? song.duration : song.duration || 0)}
-                  </div>
-                  <div className="song-actions">
-                    <button
-                      className="song-action-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (isFavorite(song.id)) {
-                          // TODO: 从收藏移除
-                        } else {
-                          addToFavorites(song);
-                        }
-                      }}
-                      title={isFavorite(song.id) ? '取消收藏' : '收藏'}
-                    >
-                      <i className={`fas ${isFavorite(song.id) ? 'fa-heart' : 'fa-heart-o'}`}></i>
-                    </button>
-                    <button
-                      className="song-action-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (window.confirm(`确定要从播放列表移除 "${song.title}" 吗？`)) {
-                          removeFromQueue(index);
-                        }
-                      }}
-                      title="从列表移除"
-                    >
-                      <i className="fas fa-times"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
+                song={song}
+                index={index}
+                onPlay={play}
+                onRemove={removeFromQueue}
+              />
             ))
           ) : (
             <div className="playlist-empty">

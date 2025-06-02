@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useApiStore } from '../store';
 import { useAudioPlayerStore } from '../store/audioPlayerStore';
-import { DEFAULT_COVER, DAILY_RECOMMEND_COVER } from '../constants';
-import { formatDuration } from '../utils';
+import { DAILY_RECOMMEND_COVER } from '../constants';
 import { getSongUrl } from '../services/musicService';
 import { toast } from '../store/toastStore';
 import CachedImage from './CachedImage';
+import DailyRecommendationItem from './DailyRecommendationItem';
 
 
 /**
@@ -241,65 +241,15 @@ const DailyRecommendations: React.FC = () => {
       </div>
 
       <div className="daily-recommendations-list">
-        {dailyRecommendations.map((song, index) => {
-          const isCurrentSongLoading = playingStates[song.id] || false;
-
-          return (
-            <div
-              key={song.id || index}
-              className="daily-recommendations-item"
-              onClick={() => handlePlaySong(song)}
-            >
-              <div className="daily-recommendations-item-number">
-                {isCurrentSongLoading ? (
-                  <i className="fas fa-spinner fa-spin"></i>
-                ) : (
-                  index + 1
-                )}
-              </div>
-              <div className="daily-recommendations-item-cover">
-                <CachedImage
-                  src={song.imageUrl || DEFAULT_COVER}
-                  className="daily-recommendations-item-image"
-                  alt={song.title}
-                />
-                <div className="daily-recommendations-item-overlay">
-                  <div className="daily-recommendations-item-play-btn">
-                    {isCurrentSongLoading ? (
-                      <i className="fas fa-spinner fa-spin"></i>
-                    ) : (
-                      <i className="fas fa-play"></i>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="daily-recommendations-item-info">
-                <h4 className="daily-recommendations-item-title">{song.title}</h4>
-                <p className="daily-recommendations-item-artist">{song.artist}</p>
-              </div>
-              <div className="daily-recommendations-item-album">
-                {song.album}
-              </div>
-              <div className="daily-recommendations-item-duration">
-                {formatDuration(song.duration)}
-              </div>
-              <div className="daily-recommendations-item-actions">
-                <button
-                  className="daily-recommendations-item-action-btn"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <i className="fas fa-heart"></i>
-                </button>
-                <button
-                  className="daily-recommendations-item-action-btn"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <i className="fas fa-ellipsis-h"></i>
-                </button>
-              </div>
-            </div>
-          );
-        })}
+        {dailyRecommendations.map((song, index) => (
+          <DailyRecommendationItem
+            key={song.id || index}
+            song={song}
+            index={index}
+            isLoading={playingStates[song.id] || false}
+            onPlay={handlePlaySong}
+          />
+        ))}
       </div>
     </div>
   );

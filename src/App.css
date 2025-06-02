@@ -2921,14 +2921,67 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   cursor: not-allowed;
 }
 
-/* 当前播放歌曲样式 */
+/* 当前播放歌曲样式 - 统一高亮系统 */
+.current-playing-song {
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.08), rgba(var(--primary-rgb), 0.04));
+  border-left: 2px solid rgba(var(--primary-rgb), 0.6);
+  position: relative;
+}
+
+.current-playing-song::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--primary), rgba(var(--primary-rgb), 0.3));
+  animation: pulse-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-glow {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* 当前播放歌曲文字高亮 */
+.current-playing-title {
+  color: rgba(var(--primary-rgb), 0.95) !important;
+  font-weight: 500;
+  text-shadow: 0 0 8px rgba(var(--primary-rgb), 0.3);
+}
+
+.current-playing-artist {
+  color: rgba(var(--primary-rgb), 0.8) !important;
+}
+
+/* 播放状态指示器 */
+.playing-indicator {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 8px;
+  color: var(--primary);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* 兼容现有的播放列表样式 */
 .playlist-song-item.current-playing {
-  background-color: rgba(var(--primary-rgb), 0.1);
-  border-left: 3px solid var(--primary);
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.08), rgba(var(--primary-rgb), 0.04));
+  border-left: 2px solid rgba(var(--primary-rgb), 0.6);
 }
 
 .playlist-song-item.current-playing .playlist-song-title {
-  color: var(--primary);
+  color: rgba(var(--primary-rgb), 0.95);
+  font-weight: 500;
+}
+
+.playlist-song-item.current-playing .playlist-song-artist {
+  color: rgba(var(--primary-rgb), 0.8);
 }
 
 /* 播放按钮加载状态 */

@@ -9,10 +9,10 @@ export default defineConfig({
   //
   // 1. prevent vite from obscuring rust errors
   clearScreen: false,
-  // 2. tauri expects a fixed port, fail if that port is not available
+  // 2. tauri expects a fixed port, but allow fallback if port is occupied
   server: {
     port: 1420,
-    strictPort: true,
+    strictPort: false,
     host: 'localhost',
     proxy: {
       // 设置API代理 - 代理所有API请求到后端服务器
