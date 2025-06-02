@@ -3,6 +3,7 @@ import { useAudioPlayerStore } from '../store/audioPlayerStore';
 import { PlayMode } from '../utils/audioPlayer';
 import { formatDuration } from '../utils';
 import PlaylistDrawer from './PlaylistDrawer';
+import { getPlayerCoverClassName } from '../utils/coverAnimation';
 
 /**
  * 使用新音频播放器的播放器组件
@@ -105,11 +106,13 @@ const Player: React.FC = () => {
   return (
     <footer className="player">
       <div className="now-playing">
-        <img
-          src={displaySong.coverUrl || (displaySong as any).imageUrl}
-          className="now-playing-image"
-          alt={displaySong.title}
-        />
+        <div className={getPlayerCoverClassName(!!currentSong, isPlaying, "now-playing-disc")}>
+          <img
+            src={displaySong.coverUrl || (displaySong as any).imageUrl}
+            className="cover-image"
+            alt={displaySong.title}
+          />
+        </div>
         <div className="now-playing-info">
           <h4>{displaySong.title}</h4>
           <p>{displaySong.artist}</p>
