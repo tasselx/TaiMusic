@@ -45,13 +45,14 @@ const Player: React.FC = () => {
   };
 
   // 切换播放/暂停
-  const togglePlay = () => {
+  const togglePlay = async () => {
     if (isPlaying) {
       pause();
     } else if (isPaused) {
       resume();
     } else {
-      play();
+      // play方法内部已包含初始化检查
+      await play();
     }
   };
 
@@ -105,7 +106,7 @@ const Player: React.FC = () => {
     <footer className="player">
       <div className="now-playing">
         <img
-          src={displaySong.coverUrl || displaySong.imageUrl}
+          src={displaySong.coverUrl || (displaySong as any).imageUrl}
           className="now-playing-image"
           alt={displaySong.title}
         />
@@ -129,8 +130,8 @@ const Player: React.FC = () => {
           </div>
           <div
             className={`play-button ${isLoading ? 'loading' : ''}`}
-            onClick={togglePlay}
-            disabled={isLoading}
+            onClick={isLoading ? undefined : togglePlay}
+            style={{ pointerEvents: isLoading ? 'none' : 'auto' }}
           >
             {isLoading ? (
               <i className="fas fa-spinner fa-spin"></i>

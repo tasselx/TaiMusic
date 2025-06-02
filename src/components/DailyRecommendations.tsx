@@ -17,7 +17,7 @@ const DailyRecommendations: React.FC = () => {
   const { dailyRecommendations, fetchDailyRecommendations } = useApiStore();
 
   // 从音频播放器Store获取播放方法
-  const { play, initializePlayer } = useAudioPlayerStore();
+  const { play } = useAudioPlayerStore();
 
   // 本地状态管理
   const [isLoading, setIsLoading] = useState(true);
@@ -25,7 +25,7 @@ const DailyRecommendations: React.FC = () => {
   const [playingStates, setPlayingStates] = useState<{ [key: string]: boolean }>({});
 
   // 播放歌曲处理函数
-  const handlePlaySong = async (song: any, index: number) => {
+  const handlePlaySong = async (song: any) => {
     try {
       // 设置当前歌曲的加载状态
       setPlayingStates(prev => ({ ...prev, [song.id]: true }));
@@ -56,10 +56,7 @@ const DailyRecommendations: React.FC = () => {
         imageUrl: song.imageUrl
       };
 
-      // 确保播放器已初始化
-      initializePlayer();
-
-      // 调用播放器播放歌曲
+      // 调用播放器播放歌曲（内部已包含初始化检查）
       await play(playerSong);
 
       toast.success(`正在播放：${song.title} - ${song.artist}`);
@@ -85,7 +82,7 @@ const DailyRecommendations: React.FC = () => {
       toast.info('正在准备播放列表...');
 
       // 播放第一首歌曲
-      await handlePlaySong(dailyRecommendations[0], 0);
+      await handlePlaySong(dailyRecommendations[0]);
 
     } catch (error) {
       console.error('播放全部失败:', error);
@@ -251,7 +248,7 @@ const DailyRecommendations: React.FC = () => {
             <div
               key={song.id || index}
               className="daily-recommendations-item"
-              onClick={() => handlePlaySong(song, index)}
+              onClick={() => handlePlaySong(song)}
             >
               <div className="daily-recommendations-item-number">
                 {isCurrentSongLoading ? (

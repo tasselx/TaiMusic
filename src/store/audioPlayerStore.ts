@@ -6,6 +6,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import AudioPlayer, { Song, PlayMode, PlayState, PlayerEvents } from '../utils/audioPlayer';
 import { audioCacheManager, CacheStats } from '../utils/audioCacheManager';
+import { toast } from './toastStore';
 
 // 播放历史记录接口
 export interface PlayHistory {
@@ -49,6 +50,8 @@ interface AudioPlayerState {
   // 播放器控制方法
   initializePlayer: () => void;
   destroyPlayer: () => void;
+  isPlayerReady: () => boolean;
+  ensurePlayerReady: () => Promise<boolean>;
   
   // 播放控制
   play: (song?: Song) => Promise<void>;
@@ -149,18 +152,82 @@ export const useAudioPlayerStore = create<AudioPlayerState>()(
         // 初始化播放器
         initializePlayer: () => {
           if (!playerInstance) {
-            playerInstance = new AudioPlayer(playerEvents);
-            set({ player: playerInstance });
-            
-            // 恢复播放器状态
-            const state = get();
-            playerInstance.setVolume(state.volume);
-            playerInstance.setPlayMode(state.playMode);
-            if (state.muted) {
-              playerInstance.toggleMute();
+            try {
+              playerInstance = new AudioPlayer(playerEvents);
+              set({ player: playerInstance });
+
+              // 恢复播放器状态
+              const state = get();
+              playerInstance.setVolume(state.volume);
+              playerInstance.setPlayMode(state.playMode);
+              if (state.muted) {
+                playerInstance.toggleMute();
+              }
+
+              console.log('音频播放器初始化完成');
+            } catch (error) {
+              console.error('音频播放器初始化失败:', error);
+              throw new Error('音频播放器初始化失败');
             }
-            
-            console.log('音频播放器初始化完成');
+          }
+        },
+
+        // 检查播放器是否已完全初始化
+        isPlayerReady: (): boolean => {
+          const state = get();
+          return !!(
+            playerInstance &&
+            state.player &&
+            typeof window !== 'undefined' &&
+            (window.AudioContext || (window as any).webkitAudioContext)
+          );
+        },
+
+        // 确保播放器初始化完成的方法
+        ensurePlayerReady: async (): Promise<boolean> => {
+          try {
+            // 检查浏览器环境
+            if (typeof window === 'undefined') {
+              throw new Error('播放器只能在浏览器环境中运行');
+            }
+
+            // 检查音频上下文支持
+            const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+            if (!AudioContext) {
+              throw new Error('您的浏览器不支持音频播放功能');
+            }
+
+            // 如果播放器未初始化，先初始化
+            if (!get().isPlayerReady()) {
+              console.log('播放器未初始化，正在初始化...');
+              get().initializePlayer();
+
+              // 等待一小段时间确保初始化完成
+              await new Promise(resolve => setTimeout(resolve, 100));
+
+              // 再次检查初始化状态
+              if (!get().isPlayerReady()) {
+                throw new Error('播放器初始化验证失败');
+              }
+            }
+
+            // 确保音频上下文已激活（针对首次播放）
+            const player = playerInstance;
+            if (player && typeof player.ensureAudioContextReady === 'function') {
+              const audioContextReady = await player.ensureAudioContextReady();
+              if (!audioContextReady) {
+                throw new Error('音频上下文激活失败，这通常发生在首次播放时。请重试播放。');
+              }
+            }
+
+            console.log('播放器初始化检查通过');
+            return true;
+          } catch (error) {
+            console.error('播放器初始化检查失败:', error);
+            // 使用Toast通知用户
+            const errorMessage = error instanceof Error ? error.message : '未知错误';
+            toast.error(`播放器初始化失败: ${errorMessage}`);
+            return false;
           }
         },
 
@@ -176,9 +243,17 @@ export const useAudioPlayerStore = create<AudioPlayerState>()(
         // 播放歌曲
         play: async (song?: Song) => {
           const state = get();
-          
-          if (!playerInstance) {
-            state.initializePlayer();
+
+          // 确保播放器已完全初始化
+          const isReady = await get().ensurePlayerReady();
+          if (!isReady) {
+            console.error('播放器初始化失败，无法播放歌曲');
+            // 给用户友好的提示
+            toast.warning('播放器正在准备中，请稍后重试播放', {
+              title: '首次播放提示',
+              duration: 4000
+            });
+            return;
           }
 
           if (song) {
@@ -186,10 +261,15 @@ export const useAudioPlayerStore = create<AudioPlayerState>()(
             const existingIndex = state.queue.findIndex(s => s.id === song.id);
             if (existingIndex !== -1) {
               // 歌曲已在队列中
+              console.log('播放队列中已存在的歌曲，索引:', existingIndex);
               set({ currentIndex: existingIndex });
-              await playerInstance?.playByIndex(existingIndex);
+
+              // 确保AudioPlayer内部队列状态与Store同步
+              playerInstance?.setQueue(state.queue, existingIndex);
+              await playerInstance?.play();
             } else {
               // 添加到队列并播放
+              console.log('添加新歌曲到队列并播放');
               const newQueue = [...state.queue, song];
               const newIndex = newQueue.length - 1;
               set({ queue: newQueue, currentIndex: newIndex });

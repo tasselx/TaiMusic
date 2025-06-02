@@ -4,6 +4,7 @@
  */
 import { Howl, Howler } from 'howler';
 import { audioCacheManager } from './audioCacheManager';
+import { audioPlayerDebugger } from './audioPlayerDebugger';
 
 // 播放模式枚举
 export enum PlayMode {
@@ -81,6 +82,92 @@ class AudioPlayer {
   constructor(events: PlayerEvents = {}) {
     this.events = events;
     this.setupGlobalVolume();
+    this.validateAudioContext();
+  }
+
+  /**
+   * 验证音频上下文是否可用
+   */
+  private validateAudioContext(): boolean {
+    try {
+      if (typeof window === 'undefined') {
+        console.warn('AudioPlayer: 运行在非浏览器环境中');
+        return false;
+      }
+
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) {
+        console.error('AudioPlayer: 浏览器不支持音频上下文');
+        return false;
+      }
+
+      console.log('AudioPlayer: 音频上下文验证通过');
+      return true;
+    } catch (error) {
+      console.error('AudioPlayer: 音频上下文验证失败:', error);
+      return false;
+    }
+  }
+
+  /**
+   * 激活音频上下文（需要用户交互）
+   */
+  private async activateAudioContext(): Promise<boolean> {
+    try {
+      if (typeof window === 'undefined') {
+        return false;
+      }
+
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) {
+        return false;
+      }
+
+      // 检查Howler的音频上下文状态
+      const ctx = Howler.ctx;
+      if (ctx && ctx.state === 'suspended') {
+        console.log('AudioPlayer: 尝试激活音频上下文...');
+        await ctx.resume();
+        console.log('AudioPlayer: 音频上下文已激活，状态:', ctx.state);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('AudioPlayer: 音频上下文激活失败:', error);
+      return false;
+    }
+  }
+
+  /**
+   * 检查播放器是否准备就绪
+   */
+  isReady(): boolean {
+    return this.validateAudioContext() && this.state !== PlayState.ERROR;
+  }
+
+  /**
+   * 确保音频上下文已激活并准备播放
+   */
+  async ensureAudioContextReady(): Promise<boolean> {
+    try {
+      // 首先验证音频上下文支持
+      if (!this.validateAudioContext()) {
+        return false;
+      }
+
+      // 尝试激活音频上下文
+      const activated = await this.activateAudioContext();
+      if (!activated) {
+        console.error('AudioPlayer: 音频上下文激活失败');
+        return false;
+      }
+
+      console.log('AudioPlayer: 音频上下文准备就绪');
+      return true;
+    } catch (error) {
+      console.error('AudioPlayer: 音频上下文准备失败:', error);
+      return false;
+    }
   }
 
   /**
@@ -190,6 +277,23 @@ class AudioPlayer {
     const currentSong = this.getCurrentSong();
     if (!currentSong) return;
 
+    // 检查播放器是否准备就绪
+    if (!this.isReady()) {
+      console.error('AudioPlayer: 播放器未准备就绪');
+      this.setState(PlayState.ERROR);
+      this.events.onLoadError?.('播放器未准备就绪');
+      return;
+    }
+
+    // 确保音频上下文已激活
+    const audioContextReady = await this.ensureAudioContextReady();
+    if (!audioContextReady) {
+      console.error('AudioPlayer: 音频上下文未激活，无法播放');
+      this.setState(PlayState.ERROR);
+      this.events.onLoadError?.('音频上下文未激活，请重试播放');
+      return;
+    }
+
     try {
       this.setState(PlayState.LOADING);
 
@@ -217,11 +321,32 @@ class AudioPlayer {
         preload: true,
         volume: this.muted ? 0 : this.volume,
         onload: () => {
-          this.setState(PlayState.PLAYING);
+          console.log('AudioPlayer: 音频文件加载完成，准备播放');
+          // 音频加载完成后再次确保音频上下文激活
+          this.ensureAudioContextReady().then((ready) => {
+            if (ready) {
+              // 开始播放
+              if (this.howl) {
+                const playPromise = this.howl.play();
+                // 处理播放Promise（某些浏览器返回Promise）
+                if (playPromise && typeof playPromise.catch === 'function') {
+                  playPromise.catch((error) => {
+                    console.error('AudioPlayer: 播放启动失败:', error);
+                    audioPlayerDebugger.addError(`播放启动失败: ${error}`);
+                    this.setState(PlayState.ERROR);
+                    this.events.onLoadError?.(error);
+                  });
+                }
+              }
+            } else {
+              console.error('AudioPlayer: 音频上下文未激活，无法开始播放');
+              this.setState(PlayState.ERROR);
+              this.events.onLoadError?.('音频上下文未激活');
+            }
+          });
+
           this.events.onLoad?.();
-          this.events.onPlay?.(currentSong);
-          this.startProgressTimer();
-          
+
           // 如果不是从缓存加载的，则缓存音频文件
           if (!cachedBlob) {
             this.cacheCurrentAudio(currentSong);
@@ -229,11 +354,14 @@ class AudioPlayer {
         },
         onloaderror: (id, error) => {
           console.error('音频加载失败:', error);
+          audioPlayerDebugger.addError(`音频加载失败: ${error}`);
           this.setState(PlayState.ERROR);
           this.events.onLoadError?.(error);
         },
         onplay: () => {
+          console.log('AudioPlayer: 音频开始播放');
           this.setState(PlayState.PLAYING);
+          this.events.onPlay?.(currentSong);
           this.startProgressTimer();
         },
         onpause: () => {
@@ -254,7 +382,7 @@ class AudioPlayer {
         }
       });
 
-      this.howl.play();
+      // 不在这里直接调用play()，而是等待onload事件
       this.events.onSongChange?.(currentSong);
 
     } catch (error) {
