@@ -3108,6 +3108,367 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   margin: 0 auto;
 }
 
+/* 全屏播放器样式 */
+.fullscreen-player {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+
+  /* 动态颜色变量 */
+  --dynamic-bg: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+  --dynamic-text: #ffffff;
+  --dynamic-primary: #4a90e2;
+}
+
+.fullscreen-player.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 毛玻璃背景 */
+.fullscreen-player-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--dynamic-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: background 0.5s ease;
+}
+
+/* 主要内容区域 */
+.fullscreen-player-content {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 32px;
+  box-sizing: border-box;
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.fullscreen-player.visible .fullscreen-player-content {
+  transform: translateY(0);
+}
+
+/* 头部控制栏 */
+.fullscreen-player-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  flex-shrink: 0;
+}
+
+.fullscreen-close-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  color: var(--dynamic-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.5s ease;
+}
+
+.fullscreen-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.fullscreen-player-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--dynamic-text);
+  transition: color 0.5s ease;
+}
+
+.fullscreen-player-actions {
+  width: 40px; /* 占位，保持布局平衡 */
+}
+
+/* 专辑封面区域 */
+.fullscreen-cover-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+  flex-shrink: 0;
+}
+
+.fullscreen-cover {
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.fullscreen-cover-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* 歌曲信息区域 */
+.fullscreen-song-info {
+  text-align: center;
+  margin-bottom: 40px;
+  flex-shrink: 0;
+}
+
+.fullscreen-song-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--dynamic-text);
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+  transition: color 0.5s ease;
+}
+
+.fullscreen-song-artist {
+  font-size: 16px;
+  color: var(--dynamic-text);
+  opacity: 0.8;
+  margin: 0;
+  line-height: 1.4;
+  transition: color 0.5s ease;
+}
+
+/* 歌词区域（预留） */
+.fullscreen-lyrics-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40px;
+  min-height: 120px;
+}
+
+.fullscreen-lyrics-placeholder {
+  text-align: center;
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.fullscreen-lyrics-placeholder i {
+  font-size: 32px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.fullscreen-lyrics-placeholder p {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* 进度控制区域 */
+.fullscreen-progress-section {
+  margin-bottom: 40px;
+  flex-shrink: 0;
+}
+
+.fullscreen-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.fullscreen-time {
+  font-size: 14px;
+  color: var(--text-secondary);
+  min-width: 40px;
+  text-align: center;
+}
+
+.fullscreen-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.fullscreen-progress-bar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.fullscreen-progress-bar::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* 播放控制区域 */
+.fullscreen-controls {
+  flex-shrink: 0;
+}
+
+.fullscreen-control-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.fullscreen-control-btn {
+  width: 48px;
+  height: 48px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s ease;
+}
+
+.fullscreen-control-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.fullscreen-play-btn {
+  width: 64px;
+  height: 64px;
+  background: var(--primary);
+  color: var(--text);
+  font-size: 24px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(var(--primary-rgb), 0.3);
+}
+
+.fullscreen-play-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.4);
+}
+
+.fullscreen-play-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.fullscreen-play-btn.loading {
+  opacity: 0.8;
+}
+
+/* 调整播放图标位置 */
+.fullscreen-play-btn .fa-play {
+  margin-left: 3px;
+}
+
+/* 音量控制区域 */
+.fullscreen-volume-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.fullscreen-volume-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.fullscreen-volume-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.fullscreen-volume-slider {
+  width: 120px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.fullscreen-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.fullscreen-volume-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 添加可点击区域的视觉提示 */
+.now-playing {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-radius: 8px;
+  padding: 8px;
+  margin: -8px;
+}
+
+.now-playing:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
 .demo-section {
   background-color: var(--surface);
   border-radius: 8px;
@@ -3595,5 +3956,110 @@ input, textarea, .search-input, .progress-bar, .volume-slider, .search-result-te
   .content {
     padding-top: 12px;
     padding-bottom: 76px; /* 调整为播放器高度 + 额外空间 */
+  }
+}
+
+/* 全屏播放器响应式设计 */
+@media (max-width: 600px) {
+  .fullscreen-player-content {
+    padding: 32px 24px;
+  }
+
+  .fullscreen-cover {
+    width: 240px;
+    height: 240px;
+  }
+
+  .fullscreen-song-title {
+    font-size: 20px;
+  }
+
+  .fullscreen-control-buttons {
+    gap: 24px;
+  }
+
+  .fullscreen-control-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+
+  .fullscreen-play-btn {
+    width: 56px;
+    height: 56px;
+    font-size: 20px;
+  }
+}
+
+@media (max-height: 700px) {
+  .fullscreen-player-content {
+    padding: 24px 32px;
+  }
+
+  .fullscreen-cover {
+    width: 200px;
+    height: 200px;
+  }
+
+  .fullscreen-song-info {
+    margin-bottom: 24px;
+  }
+
+  .fullscreen-lyrics-container {
+    min-height: 80px;
+    margin-bottom: 24px;
+  }
+
+  .fullscreen-progress-section {
+    margin-bottom: 24px;
+  }
+
+  .fullscreen-control-buttons {
+    margin-bottom: 24px;
+  }
+}
+
+@media (max-height: 600px) {
+  .fullscreen-player-content {
+    padding: 20px 24px;
+  }
+
+  .fullscreen-cover {
+    width: 160px;
+    height: 160px;
+  }
+
+  .fullscreen-song-title {
+    font-size: 18px;
+  }
+
+  .fullscreen-song-artist {
+    font-size: 14px;
+  }
+
+  .fullscreen-lyrics-container {
+    min-height: 60px;
+    margin-bottom: 20px;
+  }
+
+  .fullscreen-progress-section {
+    margin-bottom: 20px;
+  }
+
+  .fullscreen-control-buttons {
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .fullscreen-control-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .fullscreen-play-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
   }
 }

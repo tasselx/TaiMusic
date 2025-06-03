@@ -3,6 +3,7 @@ import { useAudioPlayerStore } from '../store/audioPlayerStore';
 import { PlayMode } from '../utils/audioPlayer';
 import { formatDuration } from '../utils';
 import PlaylistDrawer from './PlaylistDrawer';
+import FullScreenPlayer from './FullScreenPlayer';
 import { getPlayerCoverClassName } from '../utils/coverAnimation';
 
 /**
@@ -35,6 +36,9 @@ const Player: React.FC = () => {
   // 播放列表显示状态
   const [showPlaylist, setShowPlaylist] = useState(false);
 
+  // 全屏播放器显示状态
+  const [showFullScreen, setShowFullScreen] = useState(false);
+
   // 初始化播放器
   useEffect(() => {
     initializePlayer();
@@ -43,6 +47,23 @@ const Player: React.FC = () => {
   // 切换播放列表显示状态
   const togglePlaylist = () => {
     setShowPlaylist(!showPlaylist);
+  };
+
+  // 打开全屏播放器
+  const openFullScreen = () => {
+    setShowFullScreen(true);
+  };
+
+  // 关闭全屏播放器
+  const closeFullScreen = () => {
+    setShowFullScreen(false);
+  };
+
+  // 处理可点击区域的点击事件
+  const handleClickableAreaClick = (e: React.MouseEvent) => {
+    // 阻止事件冒泡，避免触发其他点击事件
+    e.stopPropagation();
+    openFullScreen();
   };
 
   // 切换播放/暂停
@@ -105,7 +126,7 @@ const Player: React.FC = () => {
 
   return (
     <footer className="player">
-      <div className="now-playing">
+      <div className="now-playing" onClick={handleClickableAreaClick}>
         <div className={getPlayerCoverClassName(!!currentSong, isPlaying, "now-playing-disc")}>
           <img
             src={displaySong.coverUrl || (displaySong as any).imageUrl}
@@ -191,6 +212,12 @@ const Player: React.FC = () => {
       <PlaylistDrawer
         isVisible={showPlaylist}
         onClose={() => setShowPlaylist(false)}
+      />
+
+      {/* 全屏播放器组件 */}
+      <FullScreenPlayer
+        isVisible={showFullScreen}
+        onClose={closeFullScreen}
       />
     </footer>
   );
