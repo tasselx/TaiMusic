@@ -384,7 +384,21 @@ class AudioPlayer {
           this.events.onStop?.();
         },
         onend: () => {
-          this.setState(PlayState.STOPPED);
+          // 歌曲结束时，确保进度显示为完整时长
+          const duration = this.getDuration();
+          if (duration > 0) {
+            this.events.onProgress?.(duration, duration);
+          }
+
+          // 检查是否需要继续播放
+          const nextIndex = this.getNextIndex();
+          const willContinuePlaying = nextIndex !== -1;
+
+          if (!willContinuePlaying) {
+            // 只有在不会继续播放时才设置为停止状态
+            this.setState(PlayState.STOPPED);
+          }
+
           this.stopProgressTimer();
           this.events.onEnd?.();
           this.handleSongEnd();
@@ -450,8 +464,27 @@ class AudioPlayer {
    * 上一首
    */
   async previous(): Promise<void> {
+    // 如果队列为空，直接返回
+    if (this.queue.length === 0) return;
+
+    // 如果只有一首歌，根据播放模式处理
+    if (this.queue.length === 1) {
+      switch (this.playMode) {
+        case PlayMode.SINGLE:
+        case PlayMode.LOOP:
+        case PlayMode.RANDOM:
+          // 重新播放当前歌曲
+          await this.play();
+          return;
+        case PlayMode.SEQUENCE:
+          // 顺序播放模式下，只有一首歌时重新播放
+          await this.play();
+          return;
+      }
+    }
+
     let nextIndex = this.currentIndex - 1;
-    
+
     if (nextIndex < 0) {
       if (this.playMode === PlayMode.LOOP) {
         nextIndex = this.queue.length - 1;
@@ -468,6 +501,25 @@ class AudioPlayer {
    * 下一首
    */
   async next(): Promise<void> {
+    // 如果队列为空，直接返回
+    if (this.queue.length === 0) return;
+
+    // 如果只有一首歌，根据播放模式处理
+    if (this.queue.length === 1) {
+      switch (this.playMode) {
+        case PlayMode.SINGLE:
+        case PlayMode.LOOP:
+        case PlayMode.RANDOM:
+          // 重新播放当前歌曲
+          await this.play();
+          return;
+        case PlayMode.SEQUENCE:
+          // 顺序播放模式下，手动点击下一首时重新播放
+          await this.play();
+          return;
+      }
+    }
+
     const nextIndex = this.getNextIndex();
     if (nextIndex !== -1) {
       this.currentIndex = nextIndex;
@@ -479,10 +531,13 @@ class AudioPlayer {
    * 获取下一首歌曲的索引
    */
   private getNextIndex(): number {
+    // 如果队列为空，返回-1
+    if (this.queue.length === 0) return -1;
+
     switch (this.playMode) {
       case PlayMode.SINGLE:
         return this.currentIndex; // 单曲循环
-      
+
       case PlayMode.RANDOM:
         if (this.queue.length <= 1) return this.currentIndex;
         let randomIndex;
@@ -490,13 +545,15 @@ class AudioPlayer {
           randomIndex = Math.floor(Math.random() * this.queue.length);
         } while (randomIndex === this.currentIndex);
         return randomIndex;
-      
+
       case PlayMode.SEQUENCE:
+        // 顺序播放：如果只有一首歌，停止播放；否则播放下一首
+        if (this.queue.length === 1) return -1; // 只有一首歌时停止
         return this.currentIndex + 1 < this.queue.length ? this.currentIndex + 1 : -1;
-      
+
       case PlayMode.LOOP:
         return this.currentIndex + 1 < this.queue.length ? this.currentIndex + 1 : 0;
-      
+
       default:
         return -1;
     }
@@ -508,8 +565,19 @@ class AudioPlayer {
   private async handleSongEnd(): Promise<void> {
     const nextIndex = this.getNextIndex();
     if (nextIndex !== -1) {
+      // 如果下一首是当前歌曲（单曲循环等情况），保持播放状态
+      const willReplaySameSong = nextIndex === this.currentIndex;
+
+      if (willReplaySameSong) {
+        // 单曲循环时，保持播放状态，避免界面闪烁
+        this.setState(PlayState.LOADING);
+      }
+
       this.currentIndex = nextIndex;
       await this.play();
+    } else {
+      // 没有下一首歌曲时，确保状态为停止
+      this.setState(PlayState.STOPPED);
     }
   }
 
@@ -594,8 +662,20 @@ class AudioPlayer {
         const progress = this.getProgress();
         const duration = this.getDuration();
         this.events.onProgress?.(progress, duration);
+
+        // 检查是否接近结束（剩余时间小于0.5秒）
+        if (duration > 0 && (duration - progress) < 0.5) {
+          // 更频繁地检查，确保能及时捕获结束
+          setTimeout(() => {
+            if (this.howl && this.state === PlayState.PLAYING) {
+              const finalProgress = this.getProgress();
+              const finalDuration = this.getDuration();
+              this.events.onProgress?.(finalProgress, finalDuration);
+            }
+          }, 100);
+        }
       }
-    }, 1000);
+    }, 250); // 提高更新频率到250ms，提供更流畅的进度显示
   }
 
   /**
