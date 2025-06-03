@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import './App.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import SearchBar from './components/SearchBar';
@@ -16,9 +16,9 @@ import './utils/corsTest'; // 引入CORS测试工具
 import {
   useUIStore,
   useSearchStore,
-  useApiStore,
-  Song
+  useApiStore
 } from './store';
+import useAudioPlayerStore from './store/audioPlayerStore';
 import { useCurrentSongHighlight } from './hooks/useCurrentSongHighlight';
 
 const App: React.FC = () => {
@@ -26,6 +26,9 @@ const App: React.FC = () => {
   const { setWindowSize } = useUIStore();
   const { searchTerm, searchResults, setSearchTerm, performSearch } = useSearchStore();
   const { checkApiStatus } = useApiStore();
+
+  // 音频播放器状态
+  const { queue, currentSong } = useAudioPlayerStore();
 
   const recommendedPlaylists = [
     {
@@ -318,7 +321,8 @@ const App: React.FC = () => {
         </main>
       </div>
 
-      <Player />
+      {/* 只有在播放列表不为空或有当前播放歌曲时才显示播放器 */}
+      {(queue.length > 0 || currentSong) && <Player />}
 
       {/* Toast通知容器 */}
       <ToastContainer />

@@ -236,7 +236,16 @@ class AudioPlayer {
     if (index < 0 || index >= this.queue.length) return;
 
     this.queue.splice(index, 1);
-    
+
+    // 如果队列为空，停止播放并重置状态
+    if (this.queue.length === 0) {
+      this.stop();
+      this.currentIndex = -1;
+      this.events.onQueueChange?.(this.queue);
+      this.events.onSongChange?.(null);
+      return;
+    }
+
     if (index < this.currentIndex) {
       this.currentIndex--;
     } else if (index === this.currentIndex) {

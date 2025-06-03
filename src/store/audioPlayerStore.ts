@@ -339,8 +339,25 @@ export const useAudioPlayerStore = create<AudioPlayerState>()(
 
         // 清空队列
         clearQueue: () => {
-          set({ queue: [], currentIndex: -1, currentSong: null });
+          // 停止当前播放
+          playerInstance?.stop();
+
+          // 清空状态
+          set({
+            queue: [],
+            currentIndex: -1,
+            currentSong: null,
+            isPlaying: false,
+            isPaused: false,
+            progress: 0,
+            duration: 0,
+            state: PlayState.IDLE
+          });
+
+          // 清空播放器队列
           playerInstance?.setQueue([]);
+
+          console.log('播放列表已清空，音乐播放已停止');
         },
 
         // 设置音量
