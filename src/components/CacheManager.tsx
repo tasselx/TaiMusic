@@ -36,31 +36,31 @@ const CacheManager: React.FC<CacheManagerProps> = ({ isVisible, onClose }) => {
 
   // 清理所有缓存
   const handleClearAllCache = async () => {
-    if (window.confirm('确定要清理所有缓存吗？')) {
-      setIsClearing(true);
-      try {
-        await clearCache();
-        await loadCacheStats();
-      } catch (error) {
-        console.error('清理缓存失败:', error);
-      } finally {
-        setIsClearing(false);
-      }
+    setIsClearing(true);
+    try {
+      await clearCache();
+      await loadCacheStats();
+      // 使用 Toast 通知用户操作成功
+      console.log('所有缓存已清理');
+    } catch (error) {
+      console.error('清理缓存失败:', error);
+    } finally {
+      setIsClearing(false);
     }
   };
 
   // 清理过期缓存
   const handleClearExpiredCache = async (days: number) => {
-    if (window.confirm(`确定要清理${days}天前的缓存吗？`)) {
-      setIsClearing(true);
-      try {
-        await clearExpiredCache(days);
-        await loadCacheStats();
-      } catch (error) {
-        console.error('清理过期缓存失败:', error);
-      } finally {
-        setIsClearing(false);
-      }
+    setIsClearing(true);
+    try {
+      await clearExpiredCache(days);
+      await loadCacheStats();
+      // 使用 Toast 通知用户操作成功
+      console.log(`${days}天前的缓存已清理`);
+    } catch (error) {
+      console.error('清理过期缓存失败:', error);
+    } finally {
+      setIsClearing(false);
     }
   };
 

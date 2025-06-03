@@ -89,9 +89,8 @@ const PlaylistSongItem: React.FC<PlaylistSongItemProps> = ({
             className="song-action-btn"
             onClick={(e) => {
               e.stopPropagation();
-              if (window.confirm(`确定要从播放列表移除 "${song.title}" 吗？`)) {
-                onRemove(index);
-              }
+              // 直接移除，无需确认
+              onRemove(index);
             }}
             title="从列表移除"
           >

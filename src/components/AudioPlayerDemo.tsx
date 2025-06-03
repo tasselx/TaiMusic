@@ -75,9 +75,8 @@ const AudioPlayerDemo: React.FC = () => {
   };
 
   const handleClearCache = async () => {
-    if (window.confirm('确定要清空所有音频缓存吗？')) {
-      await clearCache();
-    }
+    // 直接清空缓存，无需确认
+    await clearCache();
   };
 
   return (

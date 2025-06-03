@@ -89,9 +89,8 @@ const PlaylistDrawer: React.FC<PlaylistDrawerProps> = ({ isVisible, onClose }) =
             <button
               className="playlist-action-btn"
               onClick={() => {
-                if (window.confirm('确定要清空播放列表吗？')) {
-                  clearQueue();
-                }
+                // 直接清空播放列表，无需确认
+                clearQueue();
               }}
               disabled={queue.length === 0}
             >

@@ -69,15 +69,12 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ className = '' }) => {
   // 处理登出
   const handleLogout = async () => {
     try {
-      // 询问用户是否要清理所有缓存
-      const clearAllCache = window.confirm(
-        '是否要清理所有缓存数据？\n\n' +
-        '选择"确定"：清理所有缓存（包括音频、图片缓存）\n' +
-        '选择"取消"：仅清理用户相关数据（播放历史、收藏等）'
-      );
+      // 默认只清理用户相关数据，不清理所有缓存
+      // 这样可以保留音频、图片缓存，提升用户体验
+      const clearAllCache = false;
 
       await logout(clearAllCache);
-      toast.success(clearAllCache ? '已成功登出并清理所有缓存' : '已成功登出');
+      toast.success('已成功登出');
     } catch (error) {
       console.error('登出失败:', error);
       toast.error('登出时发生错误');
